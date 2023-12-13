@@ -1,41 +1,1349 @@
 <!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
 <html>
+
 <head>
-<meta charset="UTF-8">
-<title>Hop Ball</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <!--
+        Customize this policy to fit your own app's needs. For more guidance, see:
+            https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
+        Some notes:
+            * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
+            * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+            * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+                * Enable inline JS: add 'unsafe-inline' to default-src
+        -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com; img-src 'self' https://www.googletagmanager.com; connect-src 'self' http://localhost:5001 https://convert-svgs-to-video-h4h6bme23a-uc.a.run.app https://firebase.googleapis.com https://firebaseinstallations.googleapis.com https://region1.google-analytics.com https://www.google-analytics.com user-script:*; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://www.googletagmanager.com; media-src *">
 
-<meta name="generator" content="Scirra Construct">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 
-	<link rel="manifest" href="appmanifest.json">
-	<link rel="apple-touch-icon" sizes="128x128" href="icons/icon-128.png">
-	<link rel="apple-touch-icon" sizes="256x256" href="icons/icon-256.png">
-	<link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png">
-	<link rel="icon" type="image/png" href="icons/icon-512.png">
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="viewport"
+        content="width=device-width, height=device-height, user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1" />
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
 
-<link rel="stylesheet" href="style.css">
+    <!-- <link rel="preload" as="image" href="img/classic.png"> -->
+    <!-- <link rel="preload" as="image" href="img/quest.png"> -->
+    <link rel="preload" as="image" href="img/bg/btns/4.jpg">
+    <link rel="preload" as="image" href="img/bg/btns/22.jpg">
+    <link rel="preload" as="image" href="img/bg/main_menu.jpg">
+    <link rel="preload" as="image" href="img/bg/episode-1.jpg">
+    <link rel="preload" as="image" href="img/bg/game.jpg">
+    <link rel="preload" as="image" href="img/cat-episodes.gif">
+    <link rel="preload" as="image" href="img/bg/won.jpg">
+    <link rel="preload" as="image" href="img/won.png">
+    <link rel="preload" as="image" href="img/bg/lost_menu.png">
+    <link rel="preload" as="image" href="img/bg/menu.png">
+    <link rel="preload" as="font" href="c6ff5f1f582f9c74bf35.woff2" type="font/ttf" crossorigin>
 
+    <link rel="icon" type="image/x-icon" href="img/favicon.png">
 
+    <title>Trap the Cat</title>
+
+    <style>
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 5px solid #7A5EED;
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            top: calc(50% - 25px);;
+            left: calc(50% - 25px);;
+            -webkit-animation: spin 2s linear infinite; /* Safari */
+            animation: spin 2s linear infinite;
+        }
+        @-webkit-keyframes spin { /* Safari */
+        0% { -webkit-transform: rotate(0deg); }
+        100% { -webkit-transform: rotate(360deg); }
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
+
 <body>
+    <div id="overlay" style="transform: scale(1.2);position:fixed;left:0;right:0;top:0;bottom:0;z-index:99999;background-color:rgb(70, 70, 70);">
+        <div class="loader"></div>
+    </div>
+    <div id="fpsCounter" style="display:none;position:fixed;right:2vmin;top:2vmin;z-index:99999;font-family: sans-serif; font-size: 3vmin;color:white; background:black;padding:0.6vmin;"></div>
+    <div id="main-menu" class="text">
+        <div style="margin-right: 6vmin"></div>
+        <div class="game-option">
+            <h1 style="padding-left:3.5vmin;padding-right:3.5vmin">Trap&nbspthe&nbspCat: Origins</h1>
+            <div class="menu-divider"
+                style="width: 40%; height: 0.5vmin; border-radius: 0.25vmin; background-color: rgba(0,0,0,0.85); margin: auto; display: block;">
+            </div>
+            <h2 style="padding-left:3.5vmin;padding-right:3.5vmin" class="text-sec">The Classic Cat Chase</h2>
+            <!-- <img style="background: url('img/bg/game.jpg'); background-size: cover; padding: 2vmin; border-style: solid; border-width: 1px; border-color: #aba29b;border-radius: 2vmin;width:24.3vmin;height:18vmin;max-width:12.15vmax;max-height:9vmax" src="img/classic.png"> -->
+            <div id="play-classic" class="play-button button cta text-sec ripple subscribe-section text-outline" style="background: url(img/bg/btns/22.jpg);background-size:cover;background-position-x: center;">Chase Ahead</div>
+        </div>
+        <div class="game-option">
+            <img src="img/moving-tail.gif" style="width:13vmin; height:18.72vmin;position:absolute;top:-13vmin;right:23%;"></img>
+            <h1 style="padding-left:3.5vmin;padding-right:3.5vmin">Trap&nbspthe&nbspCat: Saga</h1>
+            <div class="menu-divider"
+                style="width: 40%; height: 0.5vmin; border-radius: 0.25vmin; background-color: rgba(0,0,0,0.85); margin: auto; display: block;">
+            </div>
+            <h2 style="padding-left:3.5vmin;padding-right:3.5vmin" class="text-sec">An Adventure with 60+ Levels & Boosters</h2>
+            <!-- <img style="background: url('img/bg/game.jpg'); background-size: cover; border-radius: 2vmin;padding: 2vmin; border-style: solid; border-width: 1px; border-color: #aba29b;width:37vmin;height:23vmin;max-width:16vmax;max-height:10vmax" src="img/quest.jpg"> -->
+            <div id="play-quest" class="play-button button cta text-sec ripple subscribe-section text-outline" style="background: url(img/bg/btns/4.jpg);background-size:cover;background-position-x: center;">Puzzle On</div>
+        </div>
+        <div style="margin-left: 6vmin"></div>
+    </div>
+    <canvas id="explode" style="display:none"></canvas>
+    <div id="svg-container" style="position: absolute; width: 100%; height: 100%;;"></div>
+    <svg id="game" viewBox="40 40 450 315" preserveAspectRatio="xMidYMid meet" style="overflow: visible">
+        <style xmlns="http://www.w3.org/1999/xhtml">
+            #game {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+            }
 
-<script>
-if (location.protocol.substr(0, 4) === "file")
-{
-	alert("Web exports won't work until you upload them. (When running on the file: protocol, browsers block many features from working for security reasons.)");
-}
-</script>
+            #game .body {
+                stroke-width: 5;
+                stroke: #000000;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+                stroke-miterlimit: 3;
+            }
 
-	<noscript>
-		<div id="notSupportedWrap">
-			<h2 id="notSupportedTitle">This content requires JavaScript</h2>
-			<p class="notSupportedMessage">JavaScript appears to be disabled. Please enable it to view this content.</p>
-		</div>
-	</noscript>
-	<script src="scripts/supportcheck.js"></script>
-	<script src="scripts/offlineclient.js" type="module"></script>
-	<script src="scripts/main.js" type="module"></script>
-	<script src="scripts/register-sw.js" type="module"></script>
+            #game .head {
+                fill: #000000;
+            }
 
+            #game .cell {
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            .cell-def > .shadow {
+                fill: rgb(32, 0, 0);
+            }
+            #free-cell,
+            #helper-cell,
+            #center-cell,
+            #drop-cell,
+            #shuffle-cell,
+            #catch-cell ,
+            #catch-cell,
+            #random-cell {
+                cursor: url('img/paw.png'), pointer;
+            }
+            <!-- #free-cell > .shadow,
+            #outside-cell > .shadow,
+            #non-blockable-cell > .shadow,
+            #indicators-cell > .shadow {
+                fill-opacity: 0.05;
+            }
+            #blocked-cell > .shadow {
+                fill-opacity: 0.09;
+            }
+            #drop-cell > .shadow,
+            #shuffle-cell > .shadow,
+            #catch-cell > .shadow ,
+            #random-cell > .shadow,
+            #freeze-cell > .shadow,
+            #drop-cell-disabled > .shadow,
+            #shuffle-cell-disabled > .shadow,
+            #catch-cell-disabled > .shadow ,
+            #random-cell-disabled > .shadow,
+            #freeze-cell-disabled > .shadow {
+                fill-opacity: 0.07;
+            }
+            #center-cell-disabled > .shadow,
+            #center-cell > .shadow {
+                fill-opacity: 0.06;
+            } -->
+            #free-cell > path:not(.shadow) {
+                stroke-width: 1;
+                fill: #D3FF01;
+                stroke: black;
+            }
+            #helper-cell > path:not(.shadow) {
+                stroke-width: 1;
+                animation: helper ease-in-out 1.2s infinite;
+                stroke: black;
+                fill: #fbaf21; /* Default fill color */
+            }
+            #blocked-cell > path:not(.shadow) {
+                stroke-width: 1;
+                stroke: black;
+                fill: #728501;
+            }
+            #outside-cell > path:not(.shadow),
+            #non-blockable-cell > path:not(.shadow) {
+                stroke-width: 1;
+                stroke: black;
+                fill: #EDF2BE;
+            }
+            #indicators-cell > path:not(.shadow) {
+                stroke-width: 0.5;
+                stroke: black;
+                fill: #EDF2BE;
+            }
+            #freeze-cell > path:not(.shadow) {
+                cursor: url('img/paw.png'), pointer;
+                stroke-width: 2.5;
+                fill: #7afffc;
+                stroke: #5ce1de;
+            }
+            <!-- #center-cell-disabled > ellipse:not(.shadow),
+            #drop-cell-disabled > path:not(.shadow),
+            #shuffle-cell-disabled > path:not(.shadow),
+            #catch-cell-disabled > path:not(.shadow),
+            #catch-cell-disabled > circle,
+            #random-cell-disabled > path:not(.shadow),
+            #freeze-cell-disabled > path:not(.shadow) {
+                stroke-width: 2.5;
+                fill: lightgray;
+                stroke: darkgray;
+            } -->
+            <!-- #random-cell-disabled > text {
+                stroke: darkgray;
+            } -->
+        </style>
+        <defs>
+            <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feOffset in="SourceAlpha" dx="0" dy="2" result="offset"/>
+                <feGaussianBlur in="offset" stdDeviation="1" result="blur"/>
+                <feFlood flood-color="rgba(0, 0, 0, 0.6)" result="color"/>
+                <feComposite in="color" in2="blur" operator="in" result="colorBlur"/>
+                <feMerge>
+                  <feMergeNode in="colorBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+            </filter>
+            <filter id="shadow-soft" x="-20%" y="-20%" width="140%" height="140%">
+                <feOffset in="SourceAlpha" dx="0" dy="1" result="offset"/>
+                <feGaussianBlur in="offset" stdDeviation="0.5" result="blur"/>
+                <feFlood flood-color="rgba(0, 0, 0, 0.2)" result="color"/>
+                <feComposite in="color" in2="blur" operator="in" result="colorBlur"/>
+                <feMerge>
+                  <feMergeNode in="colorBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+            </filter>
+            <g id="free-cell" class="cell-def" transform="matrix(1, 0, 0, 1, 25, 15)">
+                <!-- <path class="shadow" d="M15,-7.5L15 7.5L0 15L-15 7.5L-15 -7.5L0 -15L15 -7.5"
+                    transform="translate(0,2)" /> -->
+                <path d="M16,-8L16 8L0 16L-16 8L-16 -8L0 -16L16 -8z" />
+                <!-- <path d="M9,-4.5L9 4.5L0 9L-9 4.5L-9 -4.5L0 -9L9 -4.5z" /> -->
+            </g>
+            <g id="helper-cell" class="cell-def" transform="matrix(1, 0, 0, 1, 25, 15)">
+                <!-- <path class="shadow" d="M15,-7.5L15 7.5L0 15L-15 7.5L-15 -7.5L0 -15L15 -7.5"
+                    transform="translate(0,2)" /> -->
+                <path d="M16,-8L16 8L0 16L-16 8L-16 -8L0 -16L16 -8z" />
+                <!-- <path d="M9,-4.5L9 4.5L0 9L-9 4.5L-9 -4.5L0 -9L9 -4.5z" /> -->
+            </g>
+            <g id="blocked-cell" class="cell-def" transform="matrix(1, 0, 0, 1, 25, 15)">
+                <!-- <path class="shadow" d="M15,-7.5L15 7.5L0 15L-15 7.5L-15 -7.5L0 -15L15 -7.5"
+                    transform="translate(0,2)" /> -->
+                    <path d="M17,-8.5L17 8.5L0 17L-17 8.5L-17 -8.5L0 -17L17 -8.5z" />
+                <!-- <path d="M15,-7.5L15 7.5L0 15L-15 7.5L-15 -7.5L0 -15L15 -7.5z" /> -->
+                <!-- <path d="M9,-4.5L9 4.5L0 9L-9 4.5L-9 -4.5L0 -9L9 -4.5z" /> -->
+            </g>
+            <g id="non-blockable-cell" class="cell-def" transform="matrix(1, 0, 0, 1, 25, 15)">
+                <!-- <path class="shadow" d="M15,-7.5L15 7.5L0 15L-15 7.5L-15 -7.5L0 -15L15 -7.5"
+                    transform="translate(0,2)" /> -->
+                    <path d="M17,-8.5L17 8.5L0 17L-17 8.5L-17 -8.5L0 -17L17 -8.5z" />
+                <!-- <path d="M15,-7.5L15 7.5L0 15L-15 7.5L-15 -7.5L0 -15L15 -7.5z" /> -->
+                <!-- <path d="M9,-4.5L9 4.5L0 9L-9 4.5L-9 -4.5L0 -9L9 -4.5z" /> -->
+            </g>
+            <g id="outside-cell" class="cell-def" transform="matrix(1, 0, 0, 1, 25, 15)">
+                <!-- <path class="shadow" d="M15,-7.5L15 7.5L0 15L-15 7.5L-15 -7.5L0 -15L15 -7.5"
+                    transform="translate(0,2)" /> -->
+                    <!-- <path d="M17,-8.5L17 8.5L0 17L-17 8.5L-17 -8.5L0 -17L17 -8.5z" /> -->
+                <path d="M15,-7.5L15 7.5L0 15L-15 7.5L-15 -7.5L0 -15L15 -7.5z" />
+                <!-- <path d="M9,-4.5L9 4.5L0 9L-9 4.5L-9 -4.5L0 -9L9 -4.5z" /> -->
+            </g>
+            <g id="indicators-cell" class="cell-def" transform="matrix(1, 0, 0, 1, 25, 15)">
+                <!-- <path class="shadow" d="M15,-7.5L15 7.5L0 15L-15 7.5L-15 -7.5L0 -15L15 -7.5"
+                    transform="translate(0,2)" /> -->
+                <path d="M15,-7.5L15 7.5L0 15L-15 7.5L-15 -7.5L0 -15L15 -7.5z" />
+            </g>
+            <g id="center-cell" class="cell-def" transform="matrix(1, 0, 0, 1, 25, 15)">
+                <!-- <ellipse class="shadow" rx="16.25" ry="14.25" transform="translate(0,2)"/> -->
+                <ellipse rx="16.5" ry="14.5" stroke-width="1" stroke="black"/>
+                <ellipse rx="15" ry="13" stroke-width="2.5" fill="#ff7a93" stroke="#e15c75"/>
+                <ellipse rx="11.5" ry="9.5" stroke-width="1" stroke="black"/>
+                <ellipse rx="10" ry="8" stroke-width="2.5" fill="#ff7a93" stroke="#e15c75"/>
+                <ellipse rx="6.5" ry="4.5" stroke-width="1" stroke="black"/>
+                <ellipse rx="5" ry="3" stroke-width="2.5" fill="#ff7a93" stroke="#e15c75"/>
+            </g>
+            <g id="drop-cell" class="cell-def" transform="matrix(1, 0, 0, 1, 25, 15)">
+                <!-- <path class="shadow" d="M15,-7.5L15 7.5L0 15L-15 7.5L-15 -7.5L0 -15L15 -7.5"
+                transform="translate(0,2)"/> -->
+                <path d="M16,-8L16 8L0 16L-16 8L-16 -8L0 -16L16 -8z" stroke="black" stroke-width="1"/>
+                <path d="M14,-7L14 7L0 14L-14 7L-14 -7L0 -14L14 -7z" stroke-width="2.5" stroke="#6f5ce0"  fill="#8d7afe"/>
+                <path d="M10.5,-5.5L10.5 5.5L0 10.5L-10.5 5.5L-10.5 -5.5L0 -10.5L10.5 -5.5z" stroke="black" stroke-width="1" />
+                <path d="M9,-4.5L9 4.5L0 9L-9 4.5L-9 -4.5L0 -9L9 -4.5z" stroke-width="2.5" stroke="#6f5ce0"  fill="#8d7afe"/>
+                <path d="M5.5,-3L5.5 3L0 5.5L-5.5 3L-5.5 -3L0 -5.5L5.5 -3z" stroke-width="1" stroke="black"  />
+                <path d="M4,-2L4 2L0 4L-4 2L-4 -2L0 -4L4 -2z" stroke-width="2.5" stroke="#6f5ce0"  fill="#8d7afe"/>
+            </g>
+            <g id="shuffle-cell" class="cell-def" transform="matrix(1, 0, 0, 1, 25, 15)">
+                <!-- <path class="shadow" d="M15,-7.5L15 7.5L0 15L-15 7.5L-15 -7.5L0 -15L15 -7.5"
+                    transform="translate(0,2)" /> -->
+                <path d="M16,-8L16 8L0 16L-16 8L-16 -8L0 -16L16 -8z" stroke="black" stroke-width="1"/>
+                <path d="M14,-7L14 7L0 14L-14 7L-14 -7L0 -14L14 -7z" stroke-width="2.5" stroke="#e1c75c" fill="#fffb7a"/>
+                <path d="M11,-6.5L11 6.5L-11 6.5L-11 -6.5L11 -6.5z" stroke-width="0.5" stroke="black"/>
+                <path d="M9,-4.5L9 4.5L-9 4.5L-9 -4.5L9 -4.5z" stroke-width="2.5" stroke="#e1c75c" fill="#fffb7a" />
+                <path d="M5,-2L5 2L-5 2L-5 -2L5 -2z" stroke-width="0.5" stroke="black"/>
+                <path d="M4,0L4 0L-4 0L-4 0L4 0z" stroke-width="2.5"  stroke="#e1c75c" fill="#fffb7a"/>
+            </g>
+            <g id="catch-cell" class="cell-def" transform="matrix(1, 0, 0, 1, 25, 15)">
+                <path d="M16,-8L16 8L0 16L-16 8L-16 -8L0 -16L16 -8z" stroke="black" stroke-width="1"/>
+                <!-- <path class="shadow" d="M15,-7.5L15 7.5L0 15L-15 7.5L-15 -7.5L0 -15L15 -7.5"
+                    transform="translate(0,2)" /> -->
+                <path d="M14,-7L14 7L0 14L-14 7L-14 -7L0 -14L14 -7z" stroke-width="2.5" fill="#7affcf" stroke="#5ce1b1"/>
+                <circle r="7" stroke-width="1" fill="#7affcf" stroke="black" />
+                <circle r="5" stroke-width="3.5" fill="#7affcf" stroke="#5ce1b1" />
+            </g>
+            <g id="random-cell" class="cell-def" transform="matrix(1, 0, 0, 1, 25, 15)">
+                <!-- <path class="shadow" d="M15,-7.5L15 7.5L0 15L-15 7.5L-15 -7.5L0 -15L15 -7.5"
+                    transform="translate(0,2)" /> -->
+                <path d="M14,-7L14 7L0 14L-14 7L-14 -7L0 -14L14 -7z" stroke-width="2.5" />
+                <text x="-1" y="3" dominant-baseline="middle" text-anchor="middle" font-family="Tangerine"
+                    font-size="25px">?</text>
+            </g>
+            <g id="freeze-cell" class="cell-def" transform="matrix(1, 0, 0, 1, 25, 15)">
+                <!-- <path class="shadow" d="M15,-7.5L15 7.5L0 15L-15 7.5L-15 -7.5L0 -15L15 -7.5"
+                    transform="translate(0,2)"/> -->
+                <path d="M14,-7L14 7L0 14L-14 7L-14 -7L0 -14L14 -7z" />
+                <path d="M0 7 L0 -7" />
+                <path d="M7 0 L-7 0" />
+                <path d="M5 5 L-5 -5" />
+                <path d="M5 -5 L-5 5" />
+            </g>
+            <g id="center-cell-disabled" class="cell-def" transform="matrix(1, 0, 0, 1, 25, 15)">
+                <!-- <ellipse class="shadow" rx="16.25" ry="14.25" transform="translate(0,2)"/> -->
+                <ellipse rx="16.75" ry="14.75" stroke-width="1" stroke="black"/>
+                <ellipse rx="15" ry="13" stroke-width="2.5" fill="lightgray" stroke="darkgray"/>
+                <ellipse rx="10" ry="8" stroke-width="2.5" fill="lightgray" stroke="darkgray"/>
+                <ellipse rx="5" ry="3" stroke-width="2.5" fill="lightgray" stroke="darkgray"/>
+            </g>
+            <g id="drop-cell-disabled" class="cell-def" transform="matrix(1, 0, 0, 1, 25, 15)">
+                <!-- <path class="shadow" d="M15,-7.5L15 7.5L0 15L-15 7.5L-15 -7.5L0 -15L15 -7.5"
+                    transform="translate(0,2)"/> -->
+                <path d="M16,-8L16 8L0 16L-16 8L-16 -8L0 -16L16 -8z" stroke="black" stroke-width="1"/>
+                <path d="M14,-7L14 7L0 14L-14 7L-14 -7L0 -14L14 -7z"  stroke-width="2.5" fill="lightgray" stroke="darkgray"/>
+                <path d="M9,-4.5L9 4.5L0 9L-9 4.5L-9 -4.5L0 -9L9 -4.5z" stroke-width="2.5" fill="lightgray" stroke="darkgray" />
+                <path d="M4,-2L4 2L0 4L-4 2L-4 -2L0 -4L4 -2z" stroke-width="2.5" fill="lightgray" stroke="darkgray" />
+            </g>
+            <g id="shuffle-cell-disabled" class="cell-def" transform="matrix(1, 0, 0, 1, 25, 15)">
+                <!-- <path class="shadow" d="M15,-7.5L15 7.5L0 15L-15 7.5L-15 -7.5L0 -15L15 -7.5"
+                    transform="translate(0,2)" /> -->
+                <path d="M16,-8L16 8L0 16L-16 8L-16 -8L0 -16L16 -8z" stroke="black" stroke-width="1"/>
+                <path d="M14,-7L14 7L0 14L-14 7L-14 -7L0 -14L14 -7z" stroke-width="2.5" fill="lightgray" stroke="darkgray" />
+                <path d="M9,-4.5L9 4.5L-9 4.5L-9 -4.5L9 -4.5z" stroke-width="2.5" fill="lightgray" stroke="darkgray" />
+                <path d="M4,0L4 0L-4 0L-4 0L4 0z" stroke-width="2.5" fill="lightgray" stroke="darkgray" />
+            </g>
+            <g id="catch-cell-disabled" class="cell-def" transform="matrix(1, 0, 0, 1, 25, 15)">
+                <!-- <path class="shadow" d="M15,-7.5L15 7.5L0 15L-15 7.5L-15 -7.5L0 -15L15 -7.5"
+                    transform="translate(0,2)" /> -->
+                <path d="M16,-8L16 8L0 16L-16 8L-16 -8L0 -16L16 -8z" stroke="black" stroke-width="1"/>
+                <path d="M14,-7L14 7L0 14L-14 7L-14 -7L0 -14L14 -7z" stroke-width="2.5" fill="lightgray" stroke="darkgray" />
+                <circle r="5" stroke-width="3.5" stroke-width="2.5" fill="lightgray" stroke="darkgray" />
+            </g>
+            <g id="random-cell-disabled" class="cell-def" transform="matrix(1, 0, 0, 1, 25, 15)">
+                <!-- <path class="shadow" d="M15,-7.5L15 7.5L0 15L-15 7.5L-15 -7.5L0 -15L15 -7.5"
+                    transform="translate(0,2)" /> -->
+                <path d="M16,-8L16 8L0 16L-16 8L-16 -8L0 -16L16 -8z" stroke="black" stroke-width="1"/>
+                <path d="M14,-7L14 7L0 14L-14 7L-14 -7L0 -14L14 -7z" stroke-width="2.5" fill="lightgray" stroke="darkgray" />
+                <text x="-1" y="3" dominant-baseline="middle" text-anchor="middle" font-family="Tangerine"
+                    font-size="25px" stroke="darkgray">?</text>
+            </g>
+            <g id="freeze-cell-disabled" class="cell-def" transform="matrix(1, 0, 0, 1, 25, 15)">
+                <!-- <path class="shadow" d="M15,-7.5L15 7.5L0 15L-15 7.5L-15 -7.5L0 -15L15 -7.5"
+                    transform="translate(0,2)"/> -->
+                <path d="M16,-8L16 8L0 16L-16 8L-16 -8L0 -16L16 -8z" stroke="black" stroke-width="1"/>
+                <path d="M14,-7L14 7L0 14L-14 7L-14 -7L0 -14L14 -7z" stroke-width="2.5" fill="lightgray" stroke="darkgray" />
+                <path d="M0 7 L0 -7" stroke-width="2.5" fill="lightgray" stroke="darkgray" />
+                <path d="M7 0 L-7 0" stroke-width="2.5" fill="lightgray" stroke="darkgray" />
+                <path d="M5 5 L-5 -5"  stroke-width="2.5" fill="lightgray" stroke="darkgray"/>
+                <path d="M5 -5 L-5 5" stroke-width="2.5" fill="lightgray" stroke="darkgray" />
+            </g>
+            <g id="c0" transform="matrix(1, 0, 0, 1, 25, 15)">
+                <circle r="10" stroke-width="1" stroke="black" fill="#CFC8C5"/>
+                <!-- <circle r="10" stroke-width="1 " /> -->
+            </g>
+            <!-- <g id="cat-static" transform="matrix(1, 0, 0, 1, 25, 15)">
+                <image href="img/cat2.svg" height="50" width="50" />
+            </g> -->
+            <g id="cat-episodes" transform="matrix(1, 0, 0, 1, 25, 15)">
+                <image href="img/cat-episodes.gif" height="50" width="50" />
+            </g>
+            <g id="paws" transform="matrix(1, 0, 0, 1, 25, 15)">
+                <image href="img/paw6.svg" height="50" width="50" />
+            </g>
+            <g id="lock" transform="matrix(1, 0, 0, 1, 25, 15)">
+                <image href="img/lock.svg" height="50" width="50" />
+            </g>
+            <g id="pointer" transform="matrix(1, 0, 0, 1, 25, 15)">
+                <image href="img/pointer.png" height="50" width="50" />
+            </g>
+            <!-- <g id="r6" transform="matrix(1, 0, 0, 1, 25, 15)">
+                <path d="M14,-7L14 7L0 14L-14 7L-14 -7L0 -14L14 -7z" stroke-width="1.5" />
+            </g> -->
+            <g id="head1" class="head" transform="matrix(1, 0, 0, 1, 11.15, 40.2)">
+                <path
+                    d="M7.25,-27.25Q6.95 -24 4.1 -22.8Q1.4 -20.15 -3 -20.5Q-5.55 -21.35 -7.95 -22.65Q-10.9 -24.3 -11.15 -27.85Q-11.35 -31.25 -9.15 -33.9Q-6.95 -36.6 -3.55 -37.05Q-0.15 -37.45 2.65 -35.55Q5.45 -33.6 6.7 -30.45Q7.4 -28.95 7.25 -27.25 M2.35,-40.15Q4.05 -40.6 5.85 -33.7Q6.4 -31.55 6.35 -30.85L5.1 -30.5Q2.45 -31.6 0.95 -32.6Q-1.1 -33.95 -1.9 -35.55L-1.8 -35.6L-1.7 -35.8L-0.95 -35.6L-0.6 -35.45L0.45 -37.8Q1.55 -39.95 2.35 -40.15M-10.7,-35.5L-10.25 -39.95Q-8.95 -39.25 -7.85 -38.35Q-6.05 -36.95 -5.7 -35.8Q-5.35 -34.35 -6.85 -32.8Q-8.1 -31.4 -9.8 -30.8Q-10.75 -32.55 -10.7 -35.5" />
+            </g>
+            <g id="head2" class="head" transform="matrix(1, 0, 0, 1, 13.5, 40.55)">
+                <path
+                    d="M1.65,-26.85L0.5 -25.5Q-0.2 -25 -1.5 -24.85L-4.2 -24.15L-6.5 -24.25Q-8.6 -23.9 -10.55 -24.95Q-13.2 -26.65 -13.5 -29.85L-12.05 -31.1Q-11.95 -33.7 -10.2 -35.5Q-9.15 -36.75 -7.75 -37.15L-7.35 -40.55Q-0.9 -35.6 1.05 -33.65Q4.2 -30.55 1.65 -26.85" />
+            </g>
+            <g id="b1-1" class="body" transform="matrix(1, 0, 0, 1, 12.35, 33.05)">
+                <path
+                    d="M11.4,-6.8Q12.65 -7.45 13.55 -9.3Q14.5 -11.1 14.5 -12.8Q14.5 -16.3 11.9 -20.5Q9.25 -24.75 9.25 -26.35L9.35 -28.5Q9.65 -29.65 10.9 -30.55 M10.3,-5.9Q10.3 -2.6 8.05 -0.25Q5.8 2.1 2.6 2.1Q-0.6 2.1 -2.85 -0.25Q-5.1 -2.6 -5.1 -5.9Q-5.1 -9.2 -2.85 -11.55Q-0.6 -13.9 2.6 -13.9Q5.8 -13.9 8.05 -11.55Q10.3 -9.2 10.3 -5.9 M10.3,-5.9Q10.3 -2.6 8.05 -0.25Q5.8 2.1 2.6 2.1Q-0.6 2.1 -2.85 -0.25Q-5.1 -2.6 -5.1 -5.9Q-5.1 -9.2 -2.85 -11.55Q-0.6 -13.9 2.6 -13.9Q5.8 -13.9 8.05 -11.55Q10.3 -9.2 10.3 -5.9z M3.4,-13.3Q3.4 -10.65 1.6 -8.8Q-0.25 -6.9 -2.85 -6.9Q-5.4 -6.9 -7.25 -8.8Q-9.1 -10.65 -9.1 -13.3Q-9.1 -15.95 -7.25 -17.85Q-5.4 -19.7 -2.85 -19.7Q-0.25 -19.7 1.6 -17.85Q3.4 -15.95 3.4 -13.3 M3.4,-13.3Q3.4 -10.65 1.6 -8.8Q-0.25 -6.9 -2.85 -6.9Q-5.4 -6.9 -7.25 -8.8Q-9.1 -10.65 -9.1 -13.3Q-9.1 -15.95 -7.25 -17.85Q-5.4 -19.7 -2.85 -19.7Q-0.25 -19.7 1.6 -17.85Q3.4 -15.95 3.4 -13.3z M4.95,2.6L9.6 -0.8 M-9,-12.7L-6.85 -3.5 M-6.85,-3.5L-8.6 4.75 M-8.6,4.75L-9.85 4.75 M-0.5,-11.05L1.25 -2.25 M1.25,-2.25L-1.25 5.85 M-1.15,5.6L-3.45 6" />
+            </g>
+            <g id="b1-2" class="body" transform="matrix(1, 0, 0, 1, 13.15, 36.25)">
+                <path
+                    d="M11.4,-11.2Q12.65 -11.8 13.55 -13.6Q14.5 -15.3 14.5 -16.9Q14.5 -20.2 11.9 -24.2Q9.25 -28.25 9.25 -29.75L9.35 -31.8Q9.65 -32.9 10.9 -33.75 M8.7,-6.95Q6.45 -4.6 3.25 -4.6Q0.05 -4.6 -2.2 -6.95Q-4.45 -9.3 -4.45 -12.6Q-4.45 -15.9 -2.2 -18.25Q0.05 -20.6 3.25 -20.6Q6.45 -20.6 8.7 -18.25Q10.95 -15.9 10.95 -12.6Q10.95 -9.3 8.7 -6.95 M8.7,-6.95Q6.45 -4.6 3.25 -4.6Q0.05 -4.6 -2.2 -6.95Q-4.45 -9.3 -4.45 -12.6Q-4.45 -15.9 -2.2 -18.25Q0.05 -20.6 3.25 -20.6Q6.45 -20.6 8.7 -18.25Q10.95 -15.9 10.95 -12.6Q10.95 -9.3 8.7 -6.95z M-0.45,-8.35Q-2.3 -6.45 -4.9 -6.45Q-7.45 -6.45 -9.3 -8.35Q-11.15 -10.2 -11.15 -12.85Q-11.15 -15.5 -9.3 -17.4Q-7.45 -19.25 -4.9 -19.25Q-2.3 -19.25 -0.45 -17.4Q1.35 -15.5 1.35 -12.85Q1.35 -10.2 -0.45 -8.35 M-0.45,-8.35Q-2.3 -6.45 -4.9 -6.45Q-7.45 -6.45 -9.3 -8.35Q-11.15 -10.2 -11.15 -12.85Q-11.15 -15.5 -9.3 -17.4Q-7.45 -19.25 -4.9 -19.25Q-2.3 -19.25 -0.45 -17.4Q1.35 -15.5 1.35 -12.85Q1.35 -10.2 -0.45 -8.35z M7.8,0.4L10.1 -4.9 M-9,-12.7L-6.85 -3.5 M-6.85,-3.5L-8.6 4.75 M-8.6,4.75L-9.85 4.75 M-0.5,-11.05L1.25 -2.25 M1.25,-2.25L-1.25 5.85 M-1.15,5.6L-3.45 6" />
+            </g>
+            <g id="b1-3" class="body" transform="matrix(1, 0, 0, 1, 19.15, 36.25)">
+                <path
+                    d="M13,-33.75Q10.3 -33.75 9.7 -30.65Q9.5 -29.75 9.5 -24.75Q9.5 -21.55 7.25 -20.35Q4.25 -18.75 3.5 -17.25 M4.95,-4.95Q2.7 -2.6 -0.5 -2.6Q-3.7 -2.6 -5.95 -4.95Q-8.2 -7.3 -8.2 -10.6Q-8.2 -13.9 -5.95 -16.25Q-3.7 -18.6 -0.5 -18.6Q2.7 -18.6 4.95 -16.25Q7.2 -13.9 7.2 -10.6Q7.2 -7.3 4.95 -4.95 M4.95,-4.95Q2.7 -2.6 -0.5 -2.6Q-3.7 -2.6 -5.95 -4.95Q-8.2 -7.3 -8.2 -10.6Q-8.2 -13.9 -5.95 -16.25Q-3.7 -18.6 -0.5 -18.6Q2.7 -18.6 4.95 -16.25Q7.2 -13.9 7.2 -10.6Q7.2 -7.3 4.95 -4.95z M-6.45,0.15Q-8.3 2.05 -10.9 2.05Q-13.45 2.05 -15.3 0.15Q-17.15 -1.7 -17.15 -4.35Q-17.15 -7 -15.3 -8.9Q-13.45 -10.75 -10.9 -10.75Q-8.3 -10.75 -6.45 -8.9Q-4.65 -7 -4.65 -4.35Q-4.65 -1.7 -6.45 0.15 M-6.45,0.15Q-8.3 2.05 -10.9 2.05Q-13.45 2.05 -15.3 0.15Q-17.15 -1.7 -17.15 -4.35Q-17.15 -7 -15.3 -8.9Q-13.45 -10.75 -10.9 -10.75Q-8.3 -10.75 -6.45 -8.9Q-4.65 -7 -4.65 -4.35Q-4.65 -1.7 -6.45 0.15z M8.2,0.6L7.55 -5.1 M-15.75,8.25L-16 16.1L-16.25 23 M-3.75,1Q-3.75 4.9 -6.35 6.4Q-9.9 8.45 -10.25 9Q-12 11.95 -12.55 13.6Q-13.6 16.65 -13 19.75" />
+            </g>
+
+            <g id="b1-4" class="body" transform="matrix(1, 0, 0, 1, 27, 28.25)">
+                <path
+                    d="M-5.5,-13Q-5.85 -15.55 -2.55 -16.1Q1.1 -16.7 1.25 -19.25Q1.35 -21.4 2.6 -23.25Q4.3 -25.8 7.25 -25.75 M-2.55,0.65Q-4.8 3 -8 3Q-11.2 3 -13.45 0.65Q-15.7 -1.7 -15.7 -5Q-15.7 -8.3 -13.45 -10.65Q-11.2 -13 -8 -13Q-4.8 -13 -2.55 -10.65Q-0.3 -8.3 -0.3 -5Q-0.3 -1.7 -2.55 0.65 M-2.55,0.65Q-4.8 3 -8 3Q-11.2 3 -13.45 0.65Q-15.7 -1.7 -15.7 -5Q-15.7 -8.3 -13.45 -10.65Q-11.2 -13 -8 -13Q-4.8 -13 -2.55 -10.65Q-0.3 -8.3 -0.3 -5Q-0.3 -1.7 -2.55 0.65z M-10.6,8.3Q-12.45 10.2 -15.05 10.2Q-17.6 10.2 -19.45 8.3Q-21.3 6.45 -21.3 3.8Q-21.3 1.15 -19.45 -0.75Q-17.6 -2.6 -15.05 -2.6Q-12.45 -2.6 -10.6 -0.75Q-8.8 1.15 -8.8 3.8Q-8.8 6.45 -10.6 8.3 M-10.6,8.3Q-12.45 10.2 -15.05 10.2Q-17.6 10.2 -19.45 8.3Q-21.3 6.45 -21.3 3.8Q-21.3 1.15 -19.45 -0.75Q-17.6 -2.6 -15.05 -2.6Q-12.45 -2.6 -10.6 -0.75Q-8.8 1.15 -8.8 3.8Q-8.8 6.45 -10.6 8.3z M-1.25,-3Q-0.5 -3.15 1.6 -4.55L4.25 -6.25L4.25 1.25Q4 1.25 4 1.75L3.75 1.75 M-11.5,11.25Q-10 10.4 -9.5 10.5L-9.5 13.75L-12 21.75Q-12.3 22.65 -13.2 23.3L-14.75 24.5L-16 26.3Q-16.65 27 -17.7 26.75 M-24.5,29L-22.75 29Q-19.65 23.1 -20.25 13.25" />
+            </g>
+
+            <g id="b1-5" class="body" transform="matrix(1, 0, 0, 1, 28.6, 20.25)">
+                <path
+                    d="M-9,-2Q-7.2 -3 -5.75 -5.25L-3.25 -10L-0.15 -13.55Q1.85 -15.6 2 -17.75 M-7.55,11.45Q-9.8 13.8 -13 13.8Q-16.2 13.8 -18.45 11.45Q-20.7 9.1 -20.7 5.8Q-20.7 2.5 -18.45 0.15Q-16.2 -2.2 -13 -2.2Q-9.8 -2.2 -7.55 0.15Q-5.3 2.5 -5.3 5.8Q-5.3 9.1 -7.55 11.45 M-7.55,11.45Q-9.8 13.8 -13 13.8Q-16.2 13.8 -18.45 11.45Q-20.7 9.1 -20.7 5.8Q-20.7 2.5 -18.45 0.15Q-16.2 -2.2 -13 -2.2Q-9.8 -2.2 -7.55 0.15Q-5.3 2.5 -5.3 5.8Q-5.3 9.1 -7.55 11.45z M-15.6,4.75Q-13.8 6.65 -13.8 9.3Q-13.8 11.95 -15.6 13.8Q-17.45 15.7 -20.05 15.7Q-22.6 15.7 -24.45 13.8Q-26.3 11.95 -26.3 9.3Q-26.3 6.65 -24.45 4.75Q-22.6 2.9 -20.05 2.9Q-17.45 2.9 -15.6 4.75 M-15.6,4.75Q-13.8 6.65 -13.8 9.3Q-13.8 11.95 -15.6 13.8Q-17.45 15.7 -20.05 15.7Q-22.6 15.7 -24.45 13.8Q-26.3 11.95 -26.3 9.3Q-26.3 6.65 -24.45 4.75Q-22.6 2.9 -20.05 2.9Q-17.45 2.9 -15.6 4.75z M-5,6.5L-5 6.75L-7.75 9.7Q-9.6 12 -10 13.25L-10 16L-9 16Q-8.75 15.25 -7.25 13.75L-7.25 14.1L-9.05 18.05Q-10.15 20.5 -10.75 23.5 M-15.25,11.25L-15.25 11.5L-15 18.75Q-15 21.95 -16.6 26.15Q-18.35 30.8 -20.25 30.75 M-26.1,31.4Q-24.95 30.5 -24.75 27.3L-24.75 22L-23.2 16.85Q-22.25 13.35 -22.5 11.75" />
+            </g>
+            <g id="b2-1" class="body" transform="matrix(1, 0, 0, 1, 12.3, 30.05)">
+                <path fill="none"
+                    d="M15.4,-3.8Q16.65 -4.45 17.55 -6.3Q18.5 -8.1 18.5 -9.8Q18.5 -13.3 15.9 -17.5Q13.25 -21.75 13.25 -23.35L13.35 -25.5Q13.65 -26.65 14.9 -27.55" />
+                <path
+                    d="M12.5,-5.9Q12.5 -2.6 10.25 -0.25Q8 2.1 4.8 2.1Q1.6 2.1 -0.65 -0.25Q-2.9 -2.6 -2.9 -5.9Q-2.9 -9.2 -0.65 -11.55Q1.6 -13.9 4.8 -13.9Q8 -13.9 10.25 -11.55Q12.5 -9.2 12.5 -5.9" />
+                <path fill="none"
+                    d="M12.5,-5.9Q12.5 -2.6 10.25 -0.25Q8 2.1 4.8 2.1Q1.6 2.1 -0.65 -0.25Q-2.9 -2.6 -2.9 -5.9Q-2.9 -9.2 -0.65 -11.55Q1.6 -13.9 4.8 -13.9Q8 -13.9 10.25 -11.55Q12.5 -9.2 12.5 -5.9z" />
+                <path
+                    d="M-4.3,-13.5Q-6.45 -14.45 -7.9 -16.4Q-9.35 -18.35 -9.3 -20.2Q-9.4 -22 -7.9 -22.6Q-6.35 -23.2 -4.25 -22.25Q-2.2 -21.3 -0.7 -19.35Q0.75 -17.4 0.75 -15.55Q0.7 -13.8 -0.85 -13.2Q-2.3 -12.6 -4.3 -13.5" />
+                <path fill="none"
+                    d="M-4.3,-13.5Q-6.45 -14.45 -7.9 -16.4Q-9.35 -18.35 -9.3 -20.2Q-9.4 -22 -7.9 -22.6Q-6.35 -23.2 -4.25 -22.25Q-2.2 -21.3 -0.7 -19.35Q0.75 -17.4 0.75 -15.55Q0.7 -13.8 -0.85 -13.2Q-2.3 -12.6 -4.3 -13.5z M-0.65,4.25L3.95 3.45L8.65 3.25 M0,-17.35L1.1 -17.35Q1.65 -16.4 2.8 -16.05Q4 -15.7 4.65 -14.8Q5.45 -13.75 5.75 -12.55L6.05 -10.05 M-9.8,-18.65Q-8.5 -18.5 -7.75 -16.8Q-7.05 -15.2 -6 -15.25L-5.3 -9.95Q-4.6 -5.75 -4.6 -3.7Q-4.6 -0.5 -5.15 1.05Q-5.95 3.3 -8 3" />
+            </g>
+            <g id="b2-2" class="body" transform="matrix(1, 0, 0, 1, 11, 32.15)">
+                <path fill="none"
+                    d="M15.65,-12.65Q18 -12.65 18.75 -13.7Q19.25 -14.45 19.25 -16.55Q19.25 -18.8 18.15 -20.3Q17.05 -21.85 17.05 -22.95Q17.05 -24.2 18.65 -27L20.25 -29.65 M16,-11Q16 -8.25 13.5 -6.3Q11 -4.3 7.45 -4.3Q3.9 -4.3 1.45 -6.3Q-1.05 -8.25 -1.05 -11Q-1.05 -13.8 1.45 -15.75Q3.9 -17.7 7.45 -17.7Q11 -17.7 13.5 -15.75Q16 -13.8 16 -11z M-3.5,-8.3Q-5.65 -9.25 -7.1 -11.2Q-8.55 -13.15 -8.5 -15Q-8.6 -16.8 -7.1 -17.4Q-5.55 -18 -3.45 -17.05Q-1.4 -16.1 0.1 -14.15Q1.55 -12.2 1.55 -10.35Q1.5 -8.6 -0.05 -8Q-1.5 -7.4 -3.5 -8.3z M0,-17.35L1.1 -17.35Q1.65 -16.4 2.8 -16.05Q4 -15.7 4.65 -14.8Q5.45 -13.75 5.75 -12.55L6.05 -10.05 M3.8,4L8 4Q8.8 1.7 10.45 -0.1Q12.3 -2.1 14.45 -2.65L10.65 -7.25 M-7.8,3.6Q-6.05 3.6 -2.9 0.15Q0 -3 0 -3.85Q0 -4.8 -3.55 -8.85L-7.4 -13.05" />
+                <path
+                    d="M16,-11Q16 -8.25 13.5 -6.3Q11 -4.3 7.45 -4.3Q3.9 -4.3 1.45 -6.3Q-1.05 -8.25 -1.05 -11Q-1.05 -13.8 1.45 -15.75Q3.9 -17.7 7.45 -17.7Q11 -17.7 13.5 -15.75Q16 -13.8 16 -11 M-3.5,-8.3Q-5.65 -9.25 -7.1 -11.2Q-8.55 -13.15 -8.5 -15Q-8.6 -16.8 -7.1 -17.4Q-5.55 -18 -3.45 -17.05Q-1.4 -16.1 0.1 -14.15Q1.55 -12.2 1.55 -10.35Q1.5 -8.6 -0.05 -8Q-1.5 -7.4 -3.5 -8.3" />
+            </g>
+
+            <g id="b2-3" class="body" transform="matrix(1, 0, 0, 1, 37.75, 32.6)">
+                <path
+                    d="M0.15,-15.95Q0.15 -13.2 -2.35 -11.25Q-4.85 -9.25 -8.4 -9.25Q-11.95 -9.25 -14.4 -11.25Q-16.9 -13.2 -16.9 -15.95Q-16.9 -18.75 -14.4 -20.7Q-11.95 -22.65 -8.4 -22.65Q-4.85 -22.65 -2.35 -20.7Q0.15 -18.75 0.15 -15.95 M-16.85,-14.45L-22.35 -14.85Q-24.9 -15.75 -25.85 -17.4Q-26.9 -19 -25.6 -20.5Q-24.25 -22.05 -21.45 -22.5L-16 -22.1Q-13.4 -21.2 -12.45 -19.5Q-11.55 -17.9 -12.95 -16.35Q-14.2 -14.9 -16.85 -14.45" />
+                <path fill="none"
+                    d="M2.4,-17.65Q5.2 -17.3 5.35 -20.7L5.65 -25.85Q8.6 -31.15 13.85 -29.85 M0.15,-15.95Q0.15 -13.2 -2.35 -11.25Q-4.85 -9.25 -8.4 -9.25Q-11.95 -9.25 -14.4 -11.25Q-16.9 -13.2 -16.9 -15.95Q-16.9 -18.75 -14.4 -20.7Q-11.95 -22.65 -8.4 -22.65Q-4.85 -22.65 -2.35 -20.7Q0.15 -18.75 0.15 -15.95z M-16.85,-14.45L-22.35 -14.85Q-24.9 -15.75 -25.85 -17.4Q-26.9 -19 -25.6 -20.5Q-24.25 -22.05 -21.45 -22.5L-16 -22.1Q-13.4 -21.2 -12.45 -19.5Q-11.55 -17.9 -12.95 -16.35Q-14.2 -14.9 -16.85 -14.45z M1,-14.4Q0.7 -12.05 -0.6 -9.15L-3.05 -4.4L-2.05 -4.4L3.6 -6L5.4 -6L5.4 -1Q4.8 0.7 4.6 4.2L2.8 4.2 M-6.05,-11.6Q-5.65 -8.8 -5.65 -6.6Q-4.95 -6.85 -4.6 -6.35Q-4.35 -5.9 -4.4 -5.2L-3.85 -5L-4.45 -5L-4.4 -5.2L-5.6 -6.05Q-6.45 -6.9 -6.45 -7.7L-6.25 -8.4 M-22.8,-16.45L-22.15 -15.2Q-21.95 -14.5 -21.6 -14.45L-20.05 -14Q-19.6 -13.75 -19.6 -13.15Q-19.6 -11.9 -23 -11.9L-26.85 -12.05Q-28.8 -11.45 -29.55 -10.6Q-30.5 -9.55 -30.25 -7.45 M-35.25,-5.45Q-34.65 -8.8 -31.5 -11.8Q-28.4 -14.75 -24.85 -15.45" />
+            </g>
+            <g id="b2-4" class="body" transform="matrix(1, 0, 0, 1, 42.6, 31.75)">
+                <path fill="none"
+                    d="M-14.2,-18.25Q-11.15 -17.9 -9.2 -19.65Q-8 -20.65 -6.3 -23.6Q-4.6 -26.55 -3.4 -27.65Q-1.35 -29.45 1.8 -29.25 M-10.6,-17.7Q-9.9 -15.2 -11.8 -12.75Q-13.75 -10.35 -17.2 -9.4L-23.45 -9.6Q-26.35 -10.75 -27.05 -13.25Q-27.7 -15.8 -25.8 -18.2Q-23.85 -20.65 -20.45 -21.55L-14.15 -21.35Q-11.25 -20.25 -10.6 -17.7z M-32.8,-10.55Q-35.35 -11.45 -36.3 -13.1Q-37.35 -14.7 -36.05 -16.2Q-34.7 -17.75 -31.9 -18.2L-26.45 -17.8Q-23.85 -16.9 -22.9 -15.2Q-22 -13.6 -23.4 -12.05Q-24.65 -10.6 -27.3 -10.15Q-30.15 -9.65 -32.8 -10.55z M-7.1,-8.85Q-9.2 -7.8 -11.75 -5.35Q-14.05 -3.15 -15.75 -0.8 M-14.85,-8.35L-13.45 -9.05L-13.25 -9.25L-14.3 -8.85L-14.55 -8.75L-14.85 -8.35Q-15.8 -7.2 -17.1 -7.1L-20.4 -7.15L-20.2 -7.15L-17.55 -7.9L-18.65 -7.9L-18.45 -8.65Q-17.55 -8.65 -14.25 -9.65L-7.1 -9.65M-14.85,-8.35L-15.95 -7.9L-17.55 -7.9L-16.6 -8.15L-14.55 -8.75 M-39.9,3.6L-33.1 -4.6Q-29 -9.7 -29.65 -12.6 M-33.5,-9.2L-35.3 -1.15Q-36.9 3.7 -40.1 3.2" />
+                <path
+                    d="M-10.6,-17.7Q-9.9 -15.2 -11.8 -12.75Q-13.75 -10.35 -17.2 -9.4L-23.45 -9.6Q-26.35 -10.75 -27.05 -13.25Q-27.7 -15.8 -25.8 -18.2Q-23.85 -20.65 -20.45 -21.55L-14.15 -21.35Q-11.25 -20.25 -10.6 -17.7 M-32.8,-10.55Q-35.35 -11.45 -36.3 -13.1Q-37.35 -14.7 -36.05 -16.2Q-34.7 -17.75 -31.9 -18.2L-26.45 -17.8Q-23.85 -16.9 -22.9 -15.2Q-22 -13.6 -23.4 -12.05Q-24.65 -10.6 -27.3 -10.15Q-30.15 -9.65 -32.8 -10.55" />
+            </g>
+            <g id="b2-5" class="body" transform="matrix(1, 0, 0, 1, 44.65, 25.55)">
+                <path fill="none" d="M-18.4,-16.8Q-15.5 -16.65 -10.1 -20Q-4.8 -23.3 -1.4 -23" />
+                <path
+                    d="M-19.9,-11.55Q-21.85 -9.15 -25.3 -8.2L-31.55 -8.4Q-34.45 -9.55 -35.15 -12.05Q-35.8 -14.6 -33.9 -17Q-31.95 -19.45 -28.55 -20.35L-22.25 -20.15Q-19.35 -19.05 -18.7 -16.5Q-18 -14 -19.9 -11.55" />
+                <path fill="none"
+                    d="M-19.9,-11.55Q-21.85 -9.15 -25.3 -8.2L-31.55 -8.4Q-34.45 -9.55 -35.15 -12.05Q-35.8 -14.6 -33.9 -17Q-31.95 -19.45 -28.55 -20.35L-22.25 -20.15Q-19.35 -19.05 -18.7 -16.5Q-18 -14 -19.9 -11.55z" />
+                <path
+                    d="M-38.2,-11.4Q-40.75 -12.3 -41.7 -13.95Q-42.75 -15.55 -41.45 -17.05Q-40.1 -18.6 -37.3 -19.05L-31.85 -18.65Q-29.25 -17.75 -28.3 -16.05Q-27.4 -14.45 -28.8 -12.9Q-30.05 -11.45 -32.7 -11Q-35.55 -10.5 -38.2 -11.4" />
+                <path fill="none"
+                    d="M-38.2,-11.4Q-40.75 -12.3 -41.7 -13.95Q-42.75 -15.55 -41.45 -17.05Q-40.1 -18.6 -37.3 -19.05L-31.85 -18.65Q-29.25 -17.75 -28.3 -16.05Q-27.4 -14.45 -28.8 -12.9Q-30.05 -11.45 -32.7 -11Q-35.55 -10.5 -38.2 -11.4z M-23,-11.6Q-25.3 -10.6 -26.65 -6.4L-22.4 -6.4L-22.4 -2.4L-24.65 1.65Q-25.9 4.3 -28.05 4.6 M-41.45,4.2Q-41.25 4 -40.15 3.75Q-39.15 3.5 -38.85 3L-37.85 0.4L-35.95 -2.15Q-34.85 -3.65 -34.85 -4.1L-35.45 -4.8L-36.05 -5.6Q-36.15 -7.05 -36.45 -7.6L-37.25 -9.75L-37.85 -11.8L-37.85 -13Q-34.95 -12.95 -34.65 -6.6Q-34.15 -6.85 -33.85 -7.8" />
+            </g>
+            <g id="b3-1" class="body" transform="matrix(1, 0, 0, 1, 11.6, 23.65)">
+                <path fill="none"
+                    d="M10.15,2.6Q11.4 1.95 12.3 0.1Q13.25 -1.7 13.25 -3.4Q13.25 -6.9 10.65 -11.1Q8 -15.35 8 -16.95L8.1 -19.1Q8.4 -20.25 9.65 -21.15 M9.6,-0.8Q9.6 2.5 7.35 4.85Q5.1 7.2 1.9 7.2Q-1.3 7.2 -3.55 4.85Q-5.8 2.5 -5.8 -0.8Q-5.8 -4.1 -3.55 -6.45Q-1.3 -8.8 1.9 -8.8Q5.1 -8.8 7.35 -6.45Q9.6 -4.1 9.6 -0.8z M3.4,-13.3Q3.4 -10.65 1.6 -8.8Q-0.25 -6.9 -2.85 -6.9Q-5.4 -6.9 -7.25 -8.8Q-9.1 -10.65 -9.1 -13.3Q-9.1 -15.95 -7.25 -17.85Q-5.4 -19.7 -2.85 -19.7Q-0.25 -19.7 1.6 -17.85Q3.4 -15.95 3.4 -13.3z M-7.25,2.75Q-7 4.45 -5.75 4.4Q-4.3 4.3 -4 5Q-3.45 6.1 -2.7 6.5L-0.5 6.75 M-7.25,-15L-7 -4.35L-7.1 -0.75Q-7.45 1.25 -8.75 1L-8.75 2.25L-8.5 2.25 M3,-12.25Q4.05 -12.4 4.45 -10.6Q4.9 -8.75 6.25 -8.75Q6.15 -7.85 6.55 -6.15L7 -4" />
+                <path
+                    d="M9.6,-0.8Q9.6 2.5 7.35 4.85Q5.1 7.2 1.9 7.2Q-1.3 7.2 -3.55 4.85Q-5.8 2.5 -5.8 -0.8Q-5.8 -4.1 -3.55 -6.45Q-1.3 -8.8 1.9 -8.8Q5.1 -8.8 7.35 -6.45Q9.6 -4.1 9.6 -0.8 M3.4,-13.3Q3.4 -10.65 1.6 -8.8Q-0.25 -6.9 -2.85 -6.9Q-5.4 -6.9 -7.25 -8.8Q-9.1 -10.65 -9.1 -13.3Q-9.1 -15.95 -7.25 -17.85Q-5.4 -19.7 -2.85 -19.7Q-0.25 -19.7 1.6 -17.85Q3.4 -15.95 3.4 -13.3" />
+            </g>
+            <g id="b3-2" class="body" transform="matrix(1, 0, 0, 1, 14.25, 35.95)">
+                <path
+                    d="M11.15,-8.3Q11.15 -5 8.9 -2.65Q6.65 -0.3 3.45 -0.3Q0.25 -0.3 -2 -2.65Q-4.25 -5 -4.25 -8.3Q-4.25 -11.6 -2 -13.95Q0.25 -16.3 3.45 -16.3Q6.65 -16.3 8.9 -13.95Q11.15 -11.6 11.15 -8.3 M0.75,-18.9Q0.75 -16.25 -1.05 -14.4Q-2.9 -12.5 -5.5 -12.5Q-8.05 -12.5 -9.9 -14.4Q-11.75 -16.25 -11.75 -18.9Q-11.75 -21.55 -9.9 -23.45Q-8.05 -25.3 -5.5 -25.3Q-2.9 -25.3 -1.05 -23.45Q0.75 -21.55 0.75 -18.9" />
+                <path fill="none"
+                    d="M10.15,-9.7Q11.4 -10.35 12.3 -12.2Q13.25 -14 13.25 -15.7Q13.25 -19.2 10.65 -23.4Q8 -27.65 8 -29.25L8.1 -31.4Q8.4 -32.55 9.65 -33.45 M11.15,-8.3Q11.15 -5 8.9 -2.65Q6.65 -0.3 3.45 -0.3Q0.25 -0.3 -2 -2.65Q-4.25 -5 -4.25 -8.3Q-4.25 -11.6 -2 -13.95Q0.25 -16.3 3.45 -16.3Q6.65 -16.3 8.9 -13.95Q11.15 -11.6 11.15 -8.3z M0.75,-18.9Q0.75 -16.25 -1.05 -14.4Q-2.9 -12.5 -5.5 -12.5Q-8.05 -12.5 -9.9 -14.4Q-11.75 -16.25 -11.75 -18.9Q-11.75 -21.55 -9.9 -23.45Q-8.05 -25.3 -5.5 -25.3Q-2.9 -25.3 -1.05 -23.45Q0.75 -21.55 0.75 -18.9z M-2.5,6.75Q-0.2 6.05 -0.15 1.85Q-0.05 -2.85 1 -3.75 M6.25,5.25Q6.95 5.15 9.3 1.9Q11.75 -1.4 11.75 -2.6Q11.75 -3.15 10.7 -4.3L9.25 -5.75 M-11.05,-16.9L-8.05 -6.7L-7.2 -3.15Q-7.05 -1.15 -8.35 -1.1L-8 0.1L-7.75 0.05 M3,-12.25Q4.05 -12.4 4.45 -10.6Q4.9 -8.75 6.25 -8.75Q6.15 -7.85 6.55 -6.15L7 -4 M0.35,-23L-1.25 -23L0.5 -21.45Q1.35 -20.55 2.5 -20.25Q3.2 -20.05 3.6 -19L3.9 -18L4.25 -18L4.5 -18Q3.85 -18.75 2.5 -21.4Q1.7 -23 0.35 -23M1.5,-19.5Q2.6 -19.15 3 -17.75Q3.2 -17.95 3.9 -18L4.25 -17" />
+            </g>
+            <g id="b3-3" class="body" transform="matrix(1, 0, 0, 1, 22.5, 40.8)">
+                <path
+                    d="M-1.25,-31.9Q-1.25 -29.25 -3.05 -27.4Q-4.9 -25.5 -7.5 -25.5Q-10.05 -25.5 -11.9 -27.4Q-13.75 -29.25 -13.75 -31.9Q-13.75 -34.55 -11.9 -36.45Q-10.05 -38.3 -7.5 -38.3Q-4.9 -38.3 -3.05 -36.45Q-1.25 -34.55 -1.25 -31.9 M6.25,-21.3Q6.25 -18 4 -15.65Q1.75 -13.3 -1.45 -13.3Q-4.65 -13.3 -6.9 -15.65Q-9.15 -18 -9.15 -21.3Q-9.15 -24.6 -6.9 -26.95Q-4.65 -29.3 -1.45 -29.3Q1.75 -29.3 4 -26.95Q6.25 -24.6 6.25 -21.3" />
+                <path fill="none"
+                    d="M4.25,-20.5L12.3 -21.85Q15.5 -23.2 15.5 -28.15Q15.5 -29.45 15 -31.2L14.5 -33.4Q14.5 -34.25 15 -35.25 M6.25,-21.3Q6.25 -18 4 -15.65Q1.75 -13.3 -1.45 -13.3Q-4.65 -13.3 -6.9 -15.65Q-9.15 -18 -9.15 -21.3Q-9.15 -24.6 -6.9 -26.95Q-4.65 -29.3 -1.45 -29.3Q1.75 -29.3 4 -26.95Q6.25 -24.6 6.25 -21.3z M-1.25,-31.9Q-1.25 -29.25 -3.05 -27.4Q-4.9 -25.5 -7.5 -25.5Q-10.05 -25.5 -11.9 -27.4Q-13.75 -29.25 -13.75 -31.9Q-13.75 -34.55 -11.9 -36.45Q-10.05 -38.3 -7.5 -38.3Q-4.9 -38.3 -3.05 -36.45Q-1.25 -34.55 -1.25 -31.9z M-3.2,5.5Q-2.45 4.65 -2.5 0.4Q-2.6 -3.7 -1.2 -4.75Q-3.25 -7.55 -2.95 -16L-4.7 -16Q-4.7 -15.8 -5.25 -15.4Q-5.85 -15 -6.2 -15L-6.2 -12.75L-5.1 -9.65Q-4.9 -8.7 -4.25 -7.9Q-3.6 -7.1 -3.45 -6L-2.95 -6 M4,3.25L4.75 3.25Q4.75 -1 5.5 -2.5L6.75 -5.25L7.5 -7.15Q7.5 -7.75 5 -9.7Q2.5 -11.7 2.5 -13L2.65 -14L2.75 -15.25L5.25 -15.5L5.25 -11.5 M-20,-30.75L-19.6 -28.35Q-19.05 -27 -17.5 -27.25L-17.5 -24.75L-15 -24.75L-14.5 -25.75L-14.75 -25.5L-14.75 -26Q-14.75 -26.8 -15.5 -30.65Q-15.5 -31.2 -15 -31.4L-14 -31.75L-15 -32L-14.85 -32.7Q-14.65 -33.1 -14.25 -33.25" />
+            </g>
+            <g id="b3-4" class="body" transform="matrix(1, 0, 0, 1, 22.75, 49.3)">
+                <path
+                    d="M3.7,-32.55Q3.7 -29.25 1.45 -26.9Q-0.8 -24.55 -4 -24.55Q-7.2 -24.55 -9.45 -26.9Q-11.7 -29.25 -11.7 -32.55Q-11.7 -35.85 -9.45 -38.2Q-7.2 -40.55 -4 -40.55Q-0.8 -40.55 1.45 -38.2Q3.7 -35.85 3.7 -32.55 M-5.5,-40.4Q-5.5 -37.75 -7.3 -35.9Q-9.15 -34 -11.75 -34Q-14.3 -34 -16.15 -35.9Q-18 -37.75 -18 -40.4Q-18 -43.05 -16.15 -44.95Q-14.3 -46.8 -11.75 -46.8Q-9.15 -46.8 -7.3 -44.95Q-5.5 -43.05 -5.5 -40.4" />
+                <path fill="none"
+                    d="M2.5,-34.25L4.15 -35Q5.35 -35.75 5.25 -36.75L7.75 -36.75Q7.4 -34.5 9.25 -34.5L9.5 -33L14 -33L14.85 -34L15.5 -34.75 M3.7,-32.55Q3.7 -29.25 1.45 -26.9Q-0.8 -24.55 -4 -24.55Q-7.2 -24.55 -9.45 -26.9Q-11.7 -29.25 -11.7 -32.55Q-11.7 -35.85 -9.45 -38.2Q-7.2 -40.55 -4 -40.55Q-0.8 -40.55 1.45 -38.2Q3.7 -35.85 3.7 -32.55z M-5.5,-40.4Q-5.5 -37.75 -7.3 -35.9Q-9.15 -34 -11.75 -34Q-14.3 -34 -16.15 -35.9Q-18 -37.75 -18 -40.4Q-18 -43.05 -16.15 -44.95Q-14.3 -46.8 -11.75 -46.8Q-9.15 -46.8 -7.3 -44.95Q-5.5 -43.05 -5.5 -40.4z M-9.5,-26.5Q-9.5 -24.25 -7.75 -19L-5.25 -19Q-4.75 -20 -4.75 -21L-4.5 -21Q-4.65 -19.7 -3.85 -15.85Q-3.1 -12.1 -3.25 -11 M4.5,-13.25Q4.5 -14.25 5 -14.75L5 -23.75L2.75 -23.5L2.5 -29.75 M-19.5,-39L-19.25 -30.75L-19.25 -30.25L-18.85 -30.75Q-17.5 -32.45 -17.5 -36Q-17 -35.5 -15.75 -35.5L-15.75 -29L-15.25 -29Q-14.85 -30.1 -13.4 -31.75Q-11.95 -33.35 -11.5 -34.75M-19.25,-30.25L-19.25 -27.75L-20 -27.75L-20.1 -27.9L-20.25 -28.4Q-20.25 -29 -19.25 -30.25" />
+            </g>
+            <g id="b3-5" class="body" transform="matrix(1, 0, 0, 1, 25.25, 54.6)">
+                <path
+                    d="M-0.6,-39.55Q-0.6 -36.25 -2.85 -33.9Q-5.1 -31.55 -8.3 -31.55Q-11.5 -31.55 -13.75 -33.9Q-16 -36.25 -16 -39.55Q-16 -42.85 -13.75 -45.2Q-11.5 -47.55 -8.3 -47.55Q-5.1 -47.55 -2.85 -45.2Q-0.6 -42.85 -0.6 -39.55 M-9,-45.7Q-9 -43.05 -10.8 -41.2Q-12.65 -39.3 -15.25 -39.3Q-17.8 -39.3 -19.65 -41.2Q-21.5 -43.05 -21.5 -45.7Q-21.5 -48.35 -19.65 -50.25Q-17.8 -52.1 -15.25 -52.1Q-12.65 -52.1 -10.8 -50.25Q-9 -48.35 -9 -45.7" />
+                <path fill="none"
+                    d="M-1.5,-40.75Q1.3 -41.15 7.65 -40.75Q12.9 -40.8 14.25 -43.25 M-0.6,-39.55Q-0.6 -36.25 -2.85 -33.9Q-5.1 -31.55 -8.3 -31.55Q-11.5 -31.55 -13.75 -33.9Q-16 -36.25 -16 -39.55Q-16 -42.85 -13.75 -45.2Q-11.5 -47.55 -8.3 -47.55Q-5.1 -47.55 -2.85 -45.2Q-0.6 -42.85 -0.6 -39.55z M-9,-45.7Q-9 -43.05 -10.8 -41.2Q-12.65 -39.3 -15.25 -39.3Q-17.8 -39.3 -19.65 -41.2Q-21.5 -43.05 -21.5 -45.7Q-21.5 -48.35 -19.65 -50.25Q-17.8 -52.1 -15.25 -52.1Q-12.65 -52.1 -10.8 -50.25Q-9 -48.35 -9 -45.7z M-10.25,-37.25Q-10.95 -37 -11.85 -35.55L-13 -33.75L-13 -31.75L-6.75 -31.5L-6.75 -30.25L-10.2 -27.95Q-12.3 -26.4 -12.25 -24.25 M-1.25,-32Q-1.8 -30.8 -3.65 -28.7Q-5.35 -26.8 -5.75 -25.75L-7.75 -25.75 M-21.25,-40.75L-21 -40.75L-20.75 -35Q-20.3 -33.15 -20.35 -31.35Q-20.4 -27.85 -22.75 -27.5 M-16.5,-37L-16.45 -32.45Q-16.45 -29.75 -17 -28.5Q-16.75 -28.5 -16.25 -29" />
+            </g>
+            <g id="f00" transform="scale(-1,1) translate(-27,0)">
+                <use xlink:href="#b2-1" />
+                <use x="-5" y="-2.5" xlink:href="#head2" />
+            </g>
+            <g id="f01" transform="scale(-1,1) translate(-27,-2)">
+                <use xlink:href="#b2-2" />
+                <use x="-10" y="8" xlink:href="#head2" />
+            </g>
+            <g id="f02" transform="scale(-1,1) translate(-55,-2)">
+                <use xlink:href="#b2-3" />
+                <use x="-2" y="1.5" xlink:href="#head2" />
+            </g>
+            <g id="f03" transform="scale(-1,1) translate(-58,-2)">
+                <use xlink:href="#b2-4" />
+                <use x="-4.5" y="7" xlink:href="#head2" />
+            </g>
+            <g id="f04" transform="scale(-1,1) translate(-60,4)">
+                <use xlink:href="#b2-5" />
+                <use x="-8" y="-1" xlink:href="#head2" />
+            </g>
+            <g id="f10" transform="scale(-1,1) translate(-25,-3)">
+                <use xlink:href="#b1-1" />
+                <use x="-2" y="-2" xlink:href="#head1" />
+            </g>
+            <g id="f11" transform="scale(-1,1) translate(-33,-2)">
+                <use xlink:href="#b1-2" />
+                <use x="-10" y="11" xlink:href="#head1" />
+            </g>
+            <g id="f12" transform="scale(-1,1) translate(-40,-2)">
+                <use xlink:href="#b1-3" />
+                <use x="-5" y="27" xlink:href="#head1" />
+            </g>
+            <g id="f13" transform="scale(-1,1) translate(-43,3)">
+                <use xlink:href="#b1-4" />
+                <use x="-3" y="32" xlink:href="#head1" />
+            </g>
+            <g id="f14" transform="scale(-1,1) translate(-43,9)">
+                <use xlink:href="#b1-5" />
+                <use x="-5" y="27" xlink:href="#head1" />
+            </g>
+            <g id="f20" transform="translate(0,-3)">
+                <use xlink:href="#b1-1" />
+                <use x="-2" y="-2" xlink:href="#head1" />
+            </g>
+            <g id="f21" transform="translate(-6,-2)">
+                <use xlink:href="#b1-2" />
+                <use x="-10" y="11" xlink:href="#head1" />
+            </g>
+            <g id="f22" transform="translate(-12,-2)">
+                <use xlink:href="#b1-3" />
+                <use x="-5" y="27" xlink:href="#head1" />
+            </g>
+            <g id="f23" transform="translate(-15,3)">
+                <use xlink:href="#b1-4" />
+                <use x="-3" y="32" xlink:href="#head1" />
+            </g>
+            <g id="f24" transform="translate(-15,9)">
+                <use xlink:href="#b1-5" />
+                <use x="-5" y="27" xlink:href="#head1" />
+            </g>
+            <g id="f30">
+                <use xlink:href="#b2-1" />
+                <use x="-5" y="-2.5" xlink:href="#head2" />
+            </g>
+            <g id="f31" transform="translate(-3,-2)">
+                <use xlink:href="#b2-2" />
+                <use x="-10" y="8" xlink:href="#head2" />
+            </g>
+            <g id="f32" transform="translate(-30,-2)">
+                <use xlink:href="#b2-3" />
+                <use x="-2" y="1.5" xlink:href="#head2" />
+            </g>
+            <g id="f33" transform="translate(-30,-2)">
+                <use xlink:href="#b2-4" />
+                <use x="-4.5" y="7" xlink:href="#head2" />
+            </g>
+            <g id="f34" transform="translate(-30,4)">
+                <use xlink:href="#b2-5" />
+                <use x="-8" y="-1" xlink:href="#head2" />
+            </g>
+            <g id="f40" transform="translate(2,6)">
+                <use xlink:href="#b3-1" />
+                <use x="-2" y="-11" xlink:href="#head1" />
+            </g>
+            <g id="f41" transform="translate(0,-10)">
+                <use xlink:href="#b3-2" />
+                <use x="-5" y="0" xlink:href="#head1" />
+            </g>
+            <g id="f42" transform="translate(-6,-14)">
+                <use xlink:href="#b3-3" />
+                <use x="-1" y="-12" xlink:href="#head1" />
+            </g>
+            <g id="f43" transform="translate(-8,-16)">
+                <use xlink:href="#b3-4" />
+                <use x="-5.5" y="-8" xlink:href="#head1" />
+            </g>
+            <g id="f44" transform="translate(-12,-22)">
+                <use xlink:href="#b3-5" />
+                <use x="-4" y="-5" xlink:href="#head1" />
+            </g>
+            <g id="f50" transform="scale(-1,1) translate(-27,6)">
+                <use xlink:href="#b3-1" />
+                <use x="-2" y="-11" xlink:href="#head1" />
+            </g>
+            <g id="f51" transform="scale(-1,1) translate(-29,-8)">
+                <use xlink:href="#b3-2" />
+                <use x="-5" y="0" xlink:href="#head1" />
+            </g>
+            <g id="f52" transform="scale(-1,1) translate(-36,-14)">
+                <use xlink:href="#b3-3" />
+                <use x="-1" y="-12" xlink:href="#head1" />
+            </g>
+            <g id="f53" transform="scale(-1,1) translate(-38,-16)">
+                <use xlink:href="#b3-4" />
+                <use x="-5.5" y="-8" xlink:href="#head1" />
+            </g>
+            <g id="f54" transform="scale(-1,1) translate(-42,-22)">
+                <use xlink:href="#b3-5" />
+                <use x="-4" y="-5" xlink:href="#head1" />
+            </g>
+        </defs>
+        <g id="board" style="display:none;
+        " />
+        <g id="boosters" style="display:none;
+        " />
+        <g id="indicators-bg" style="display:none;
+        " />
+        <g id="map" style="display:none" />
+    </svg>
+
+    <div id="landscape-menu-open" class="button indicator-txt text absolute ripple"
+        style="display: none;top:5vmin;right:calc(4vw - 2vmin);border-radius:6vmin;padding-left:2vmin;padding-right:2vmin;border-width:0.0;border-width: 0.5vmin;border-style: solid;border-color: black;">
+        <div class="hamburger-menu">
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+        </div>
+    </div>
+
+    <div id="show-tip" class="button indicator-txt text absolute ripple"
+        style="
+        display: none;
+        background-color: #CFC8C5;
+        bottom:5vmin;
+        right:calc(4vw - 2vmin);
+        border-radius:6vmin;
+        padding:2vmin;
+        border-width:0.0;
+        border-width: 0.5vmin;
+        border-style: solid;
+        border-color: black;
+        line-height: 0;
+        ">
+        <span class="material-symbols-outlined" style="font-size:5.5vmin">question_mark</span>
+    </div>
+
+    <div id="episodes-control" class="text top horizontal-center"
+        style="position: fixed; display: none; flex-direction: row; top: 6.2vmin">
+        <div id="previous-episode" class="button text ripple icons-container" style="font-size: calc(5 * var(--scale) * var(--font-scale));
+            background-color: #CFC8C3;
+            padding: 2vmin;
+            padding-left: 1.5vmin;
+            margin-top:-0.2vmin;
+            border-radius: 6vmin;
+            margin-right:3vmin;
+            overflow: hidden;height:80%;
+            border-width: 0.5vmin;
+            border-color: black;
+            border-style: solid;
+            "
+        >
+            <span class="material-symbols-outlined" style="font-size: 6vmin;">
+                arrow_back_ios_new
+            </span>
+        </div>
+        <div id="episode-text" class="text" style="
+            font-size: 8.3vmin;
+            background-color: #EDF3BF;
+            padding: 3vmin;
+            padding-left: 5vmin;
+            padding-right: 5vmin;
+            padding-bottom: 2vmin;
+            border-radius: 7vmin;
+            border-style: solid;
+            border-width: 0.5vmin;
+            border-color: black;
+            margin-top: -2.4vmin;
+            ">Episode 1</div>
+        <div id="next-episode" class="button text ripple icons-container"
+            style="font-size: calc(5 * var(--scale)* var(--font-scale));
+            background-color: #CFC8C3;
+            padding: 2vmin;
+            padding-right: 1.5vmin;
+            margin-top:-0.2vmin;
+            border-radius: 6vmin;
+            margin-left:3vmin;
+            overflow: hidden;
+            height:80%;
+            border-width: 0.5vmin;
+            border-color: black;
+            border-style: solid;
+            " class=""
+        >
+            <span class="material-symbols-outlined" style="font-size: 6vmin;">
+                arrow_forward_ios
+                </span>
+        </div>
+    </div>
+
+    <!-- <div style="position: absolute; right: 0; top: 15%; height: 70%; width: 15vmin;
+    background-image: linear-gradient(to top, rgba(255,0,0,0), #CFC8C3, rgba(255,0,0,0));
+    ">
+    <div style="
+        position: absolute;
+        top: 50%;
+        width: 100%;
+        transform-origin: calc(100% - 0.4vmin) 50%;
+        height: 1vmin;
+        background: #32302F;
+        transform: rotate(68deg);
+        right: 30%;
+        border-radius: 0.5vmin;
+    "></div>
+    <div style="
+        position: absolute;
+        top: 50%;
+        width: 100%;
+        transform-origin: calc(100% - 0.4vmin) 50%;
+        height: 1vmin;
+        background: #32302F;
+        transform: rotate(-68deg);
+        right: 30%;
+        border-radius: 0.5vmin;
+    "></div>
+    </div> -->
+
+
+    <!-- <div style="position: absolute; left: 0; top: 15%; height: 70%; width: 15vmin;
+    background-image: linear-gradient(to top, rgba(255,0,0,0), #CFC8C3, rgba(255,0,0,0));
+    ">
+    </div> -->
+
+    <div id="indicators" class="absolute left indicator-txt" style="
+    display: none;
+    left: 2vmin;
+    top: 2vmin;
+    padding:calc(2 * var(--scale));
+    padding-left: calc(2 * var(--scale));
+    background-color: #EDF3BF;
+    border-style: solid;
+    border-width: 0.5vmin;
+    border-color: black;
+    border-radius: calc(4 * var(--scale));
+    /* text-shadow: rgba(0,0,0,0.2) 0px 0 2px; */
+    ">
+        <div class="text" style="font-size: calc(2.5 * var(--scale));">
+            <span id="level" class="indicator-txt text"
+                style="font-size: calc(3 * var(--scale)* var(--font-scale));"></span><span
+                id="level-separator"
+                class="indicator-txt text-sec"
+                style="font-weight: normal; font-size: calc(1.5 * var(--scale)); position: relative; top: calc(-0.1 * var(--scale));margin-left:calc(0.1 * var(--scale))">&nbsp&nbsp|&nbsp&nbsp</span><span
+                id="lives-heart" class="icon indicator-txt">A</span><span class="indicator-txt"
+                id="lives-counter" style="font-size: calc(2.5 * var(--scale) * var(--font-scale));"></span>
+        </div>
+        <div id="game-indicators" style="display: none;">
+            <div class="indicator-txt text"
+                style="
+            /* display:none; */
+            font-size: calc(2.5 * var(--scale)); margin-top:calc(0.35 * var(--scale));margin-left:calc(0.8 * var(--scale));">
+                <span id="steps-icon" class="icon"
+                    style="font-size: calc(2.4 * var(--scale) * var(--font-scale));">B</span><span id="steps"
+                    class=indicator-txt></span>
+            </div>
+            <div class="indicator-txt text" style="
+            display:none;
+            font-size: calc(2.5 * var(--scale)); margin-top:calc(0.35 * var(--scale));">
+                <span id="timer-icon" class="icon">C</span><span id="timer"
+                    style="font-size: calc(2.5 * var(--scale) * var(--font-scale));" class=indicator-txt></span>
+            </div>
+        </div>
+    </div>
+
+    <div id="menu" class="absolute"
+        style="
+        display:none;
+        z-index:2;
+        height:100%;
+        width: 100%;
+        left:0;
+        top:0;
+        /* margin-right:4vmin;
+         margin-left: 4vmin; */
+         background-image: url(img/bg/menu.png);
+    background-size: cover;
+    background-position-y: 50%;
+    /* background-color: rgb(221, 213, 208); */
+        ">
+        <div id="menu-close" class="text absolute ripple" style="top:7vmin;right:calc(4vw - 1.3vmin);z-index:3;">
+            <span class="button" style="font-size:6.5vmin;padding:4vmin;
+            border-radius: 6vmin;
+                border-width: 0.5vmin;
+                border-color: black;
+                border-style: solid;
+                padding-bottom: 2.5vmin;
+                background-color: #CFC8C5;
+                ">✕</span>
+        </div>
+        <span id="menu-version" class="text-sec absolute text-outline-soft" style="
+            font-size:3vmin;
+            bottom:2vmin;
+            left:calc(4vw - 1.3vmin);
+            z-index:3;
+            color:white;
+            letter-spacing: 0.1em;
+            "></span>
+        <div id="menu-shutdown" class="text absolute ripple rm-web" style="bottom:7vmin;right:calc(4vw - 1.3vmin);z-index:3;">
+            <div class="button icons-container" style="padding:2.5vmin;
+            border-radius: 8vmin;
+                border-width: 0.5vmin;
+                border-color: black;
+                border-style: solid;
+                background-color: #F8616A;
+                "><span class="material-symbols-outlined" style="font-size:5.5vmin">power_settings_new</span>
+            </div>
+        </div>
+        <div class="text absolute ripple rm-mobile" style="bottom:58vmin;left:calc(4vw - 1.3vmin);z-index:3;">
+            <img onclick="window.open('https://play.google.com/store/apps/details?id=com.kima.chatnoirhex', '_blank').focus();" src="img/social/playstore.png" class="button" style="
+            border-radius: 8vmin;
+                border-width: 0.5vmin;
+                border-color: black;
+                border-style: solid;
+                width: 12vmin;
+                "></img>
+        </div>
+        <div class="text absolute ripple" style="bottom:41vmin;left:calc(4vw - 1.3vmin);z-index:3;">
+            <img onclick="window.open('https://discord.gg/8MPz7bzuPD', '_blank').focus();" src="img/social/discord.png" class="button" style="
+            border-radius: 8vmin;
+                border-width: 0.5vmin;
+                border-color: black;
+                border-style: solid;
+                width: 12vmin;
+                "></img>
+        </div>
+        <div class="text absolute ripple" style="bottom:24vmin;left:calc(4vw - 1.3vmin);z-index:3;">
+            <img onclick="window.open('https://www.reddit.com/r/TrapTheCatGame/', '_blank').focus();" src="img/social/reddit.png" class="button" style="
+            border-radius: 8vmin;
+                border-width: 0.5vmin;
+                border-color: black;
+                border-style: solid;
+                width: 12vmin;
+                "></img>
+        </div>
+        <div class="text absolute ripple" style="bottom:7vmin;left:calc(4vw - 1.3vmin);z-index:3;">
+            <img onclick="window.open('https://www.tiktok.com/@playchatnoir', '_blank').focus();" src="img/social/tiktok.png" class="button" style="
+            border-radius: 8vmin;
+                border-width: 0.5vmin;
+                border-color: black;
+                border-style: solid;
+                width: 12vmin;
+                "></img>
+        </div>
+        <div id="menu-items" class="center"
+            style="padding: 4vmin;padding-right:50vmax;padding-left:50vmax;max-height: calc(100% - 8vmin);overflow-y:scroll;overflow-x: hidden;">
+            <div id="menu-music" class="button subscribe-section menu-option text-sec p ripple"></div>
+            <div id="menu-difficulty" class="button subscribe-section menu-option text-sec p ripple" style="display: none"></div>
+            <!-- <div class="menu-divider rm-web"
+                style="width: 20vmin; height: 0.5vmin; border-radius: 0.25vmin; background-color: rgba(0,0,0,0.85); margin: auto; margin-bottom: 2vmin; margin-top: 2vmin; display: block;"></div> -->
+            <div id="menu-earn" class="button subscribe-section menu-option text-sec p ripple rm-web" >🎁 <span class="text-on-white">Earn 3 Lives</span></div>
+            <div id="menu-invite-friend" class="button subscribe-section menu-option text-sec p ripple rm-web" style="">➕ <span class="text-on-white">Invite a Friend</span></div>
+            <div id="menu-rm-ads" class="button subscribe-section menu-option text-sec p ripple rm-web" style="display: none">🚫 <span class="text-on-white">Remove Ads</span></div>
+            <!-- <div class="menu-divider rm-web"
+                style="width: 20vmin; height: 0.5vmin; border-radius: 0.25vmin; background-color: rgba(0,0,0,0.85); margin: auto; margin-bottom: 2vmin; margin-top: 2vmin; display: block;"></div> -->
+            <div id="menu-map" class="button subscribe-section menu-option text-sec p ripple" style="display: none">🗺️ <span class="text-on-white">Episodes Map</span></div>
+            <div id="menu-main-menu" class="button subscribe-section menu-option text-sec p ripple" style="display: block">🏠 <span class="text-on-white">Main Menu</span></div>
+            <!-- <div id="menu-divider-nav" class="menu-divider rm-classic rm-web"
+                style="width: 20vmin; height: 0.5vmin; border-radius: 0.25vmin; background-color: rgba(0,0,0,0.85); margin: auto; margin-bottom: 2vmin; margin-top: 2vmin; display: block;"></div> -->
+            <div id="menu-feedback" class="button subscribe-section menu-option text-sec p ripple rm-web" style="background-color: #deff42;">💬 <span class="">Give Feedback</span></div>
+        </div>
+        <!-- <div id="menu-share" class="text p ripple" style="display: inline-block">Share Your Progress</div><br> -->
+        <!-- <div id="menu-open-leaderboard" class="text p ripple" style="display: inline-block">Leaderboard</div> -->
+        <!-- <br>
+            <div id="menu-achievements" class="text p ripple" style="display: inline-block">Achievements</div><br> -->
+    </div>
+    <div id="menu-bg"
+        style="display:none;z-index:1;position:absolute;height:100%;width:100%;opacity:0.95;left:0;top:0;">
+    </div>
+
+    <div id="spinner" class="spinner" style="display: none;">
+        <div class="loader"></div>
+    </div>
+
+    <div id="replay-dialog" style="display: none;">
+        <div class="absolute center"
+            style="width:auto;z-index:2; padding:6vmin;border-radius: 4vmin;background-color: inherit;border-width: 0.5vmin;border-color:rgba(0,0,0,0.85);border-style:solid">
+            <div id="replay-dialog-title" class="text" style="margin-bottom:3vmin;">You Won!</div>
+            <div id="" style="margin-bottom:5vmin;position:relative;height:30vmin;">
+                <div class="text-sec absolute" style="bottom:-2vmin;left:0;z-index:3;">
+                    <span id="replay-speed-control" class="ripple" style="font-size:3.5vmin;padding:4vmin;color: rgba(0,0,0,0.65);display:inline-block">▶▶</span>
+                </div>
+                <div id="replay-dialog-preview" style="position:relative;overflow:hidden;border-color:black;border-radius: 2vmin;border-style: solid;border-width:0.5vmin;height:100%;" class="cta"></div>
+            </div>
+            <div id="replay-dialog-ok" class="button ripple subscribe-section text-sec cta" style="margin-bottom: 5vmin;color:black!important;background-color:#D3FF01;">Share Replay</div>
+            <div id="replay-dialog-cancel" class="button cta ripple subscribe-section text-sec" style="margin-bottom: 0;text-shadow: 0 0 black;">
+                Continue Playing</div>
+        </div>
+        <div id="replay-dialog-bg"
+            style="z-index:1;position:absolute;height:100%;width:100%;background-color:rgba(0,0,0,0.8);left:0;top:0;">
+        </div>
+    </div>
+
+    <div id="loose-life-dialog" style="display: none;">
+        <div class="absolute center"
+            style="width:auto;z-index:3; padding:6vmin;border-radius: 4vmin;background-color: inherit;border-width: 0.5vmin;border-color:rgba(0,0,0,0.85);border-style:solid">
+            <div id="loose-life-dialog-title" class="text" style="margin-bottom:6vmin;">Exit Level?</div>
+            <div id="loose-life-dialog-title" class="text-sec" style="margin-bottom:6vmin;">Leaving now will cost you one life.<br>Proceed?</div>
+            <div id="loose-life-dialog-ok" class="button ripple subscribe-section text-sec" style="margin-bottom: 5vmin;">Yes, Exit</div>
+            <div id="loose-life-dialog-cancel" class="button ripple subscribe-section text-sec" style="margin-bottom: 0;">
+                No, Stay</div>
+        </div>
+        <div id="loose-life-dialog-bg"
+            style="z-index:2;position:absolute;height:100%;width:100%;background-color:rgba(0,0,0,0.9);left:0;top:0;">
+        </div>
+    </div>
+
+    <div id="exit-game-dialog" style="display: none;">
+        <div class="absolute center"
+            style="width:auto;z-index:3; padding:6vmin;border-radius: 4vmin;background-color: inherit;border-width: 0.5vmin;border-color:rgba(0,0,0,0.85);border-style:solid">
+            <div id="exit-game-dialog-title" class="text" style="margin-bottom:6vmin;">Confirm Exit?</div>
+            <div id="exit-game-dialog-ok" class="button ripple subscribe-section text-sec" style="margin-bottom: 5vmin;">Yes, Exit Game</div>
+            <div id="exit-game-dialog-cancel" class="button ripple subscribe-section text-sec" style="margin-bottom: 0;">
+                No, Return to Game</div>
+                <div id="exit-game-dialog-feedback" class="button ripple subscribe-section text-sec rm-web" style="margin-bottom: 0;">
+                    Give Feedback</div>
+        </div>
+        <div id="exit-game-dialog-bg"
+            style="z-index:2;position:absolute;height:100%;width:100%;background-color:rgba(0,0,0,0.9);left:0;top:0;">
+        </div>
+    </div>
+
+    <div id="feedback-dialog" style="display:none">
+        <div class="absolute center"
+            style="width:calc(100vmax - 12vmin); width: 90vmax;z-index:3; padding:6vmin;padding-top:0;border-radius: 4vmin;background-color: inherit;border-width: 0.5vmin;border-color:rgba(0,0,0,0.85);border-style:solid;">
+            <!-- <div id="feedback-dialog-title" class="text" style="margin-bottom:3vmin;">Share Your Thoughts</div> -->
+            <div style="overflow-y: hidden; height: 69vmin;" id="feedback-scroll-container">
+                <div style="padding-bottom: 50vmin;padding-top:6vmin;">
+                    <div class="text-sec" style="margin-bottom:2vmin;">
+                        Tell me your thoughts or suggest how I can make things better.
+                    </div>
+                    <textarea class="subscribe-section text-sec"
+                        id="feedback-text"
+                        style="resize: none;width: calc(100% - 9vmin); width: -webkit-fill-available; outline-color: #6a7d01; margin-top: 0" rows="3"></textarea>
+                    <div style="display: flex; flex-direction: row;margin-bottom: 0vmin;margin-top: 0;">
+                        <div style="margin-right:3vmin;flex-grow: 1;">
+                            <div class="text-sec" style="margin-bottom:2vmin; flex-grow: 1">
+                                How satisfied are you with the game?
+                            </div>
+                            <div style="font-size: 10vmin;"><span id="1-star-review" class="ripple">☆</span><span id="2-star-review" class="ripple">☆</span><span id="3-star-review" class="ripple">☆</span><span id="4-star-review" class="ripple">☆</span><span id="5-star-review" class="ripple">☆</span></div>
+                        </div>
+                        <div style="margin-left:3vmin;width: calc(50% - 3vmin)">
+                            <div class="text-sec" style="margin-bottom:2vmin;">
+                                Provide email for a reply (optional).
+                            </div>
+                            <input class="subscribe-section text-sec"
+                                id="feedback-email"
+                                type="email"
+                                style="width: calc(100% - 9vmin); width: -webkit-fill-available; outline-color: #6a7d01; margin-top: 0">
+                            </input>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; flex-direction: row;margin-bottom: 0vmin;">
+                <div id="feedback-dialog-cancel" class="button ripple subscribe-section text-sec" style="margin-bottom: 0;margin-right:3vmin;">Cancel</div>
+                <div id="feedback-dialog-ok" class="ripple subscribe-section text-sec" style="margin-bottom: 0;margin-left:3vmin;border-color: #9E9E9E;color: #9E9E9E; background-color: #E0E0E0!important">Send Feedback</div>
+            </div>
+        </div>
+        <div id="feedback-dialog-bg"
+            style="z-index:2;position:absolute;height:100%;width:100%;background-color:rgba(0,0,0,0.8);left:0;top:0;">
+        </div>
+    </div>
+
+    <div id="feedback-thanks-dialog" style="display:none">
+        <div class="absolute center"
+            style="width:auto;z-index:3; padding:6vmin;border-radius: 4vmin;background-color: inherit;border-width: 0.5vmin;border-color:rgba(0,0,0,0.85);border-style:solid">
+            <div id="feedback-thanks-dialog-title" class="text" style="margin-bottom:6vmin;">Thanks!</div>
+            <div class="text-sec" style="margin-bottom: 6vmin;">I've received your message and will get back to you soon.</div>
+            <div id="feedback-thanks-dialog-ok" class="ripple subscribe-section text-sec" style="margin-bottom: 5vmin;">Rate on Google Play Store</div>
+            <div id="feedback-thanks-dialog-cancel" class="ripple subscribe-section text-sec" style="margin-bottom: 0;">
+                Continue Playing</div>
+        </div>
+        <div id="feedback-thanks-dialog-bg"
+            style="z-index:2;position:absolute;height:100%;width:100%;background-color:rgba(0,0,0,0.8);left:0;top:0;">
+        </div>
+    </div>
+
+    <div id="info-bg" style="
+    display: none;
+    position:fixed;
+    background-color:rgba(0,0,0,0.6);
+    width: 100%;
+    height: 100%;
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+    "></div>
+    <div id="info" style="
+            visibility: hidden;
+            display: none;
+            position:fixed;
+            background-color: white;
+            color:rgba(0,0,0,0.85);
+            padding: 3.5vmin;
+            border-radius: 2vmin;
+            position:fixed;
+            font-size: 3.5vmin;
+            max-width: 50%;
+            "
+            class="text-sec">
+                <span id="info-text"></span>
+                <div style="
+                display: none;
+                    bottom: 0;
+                    left: 50%;
+                    transform: translateX(-25%);
+                    width: 0;
+                    height: 0;
+                    border-left: 2vmin solid transparent;
+                    border-right: 2vmin solid transparent;
+                    border-top: 2vmin solid white;
+                    position: absolute;
+                    right: 50%;
+                    margin-right: -1vmin;
+                    bottom: calc(-2vmin + 1px);
+                    " id="info-arrow-bottom">
+                </div>
+                <div style="
+                display: none;
+                    bottom: 0;
+                    left: 50%;
+                    transform: translateX(-25%);
+                    width: 0;
+                    height: 0;
+                    border-left: 2vmin solid transparent;
+                    border-right: 2vmin solid transparent;
+                    border-bottom: 2vmin solid white;
+                    position: absolute;
+                    right: 50%;
+                    margin-right: -1vmin;
+                    top: calc(-2vmin + 1px);
+                    "  id="info-arrow-top">
+                </div>
+                <div style="
+                display: none;
+                right: 0;
+                transform: translateY(25%);
+                width: 0;
+                height: 0;
+                border-top: 2vmin solid transparent;
+                border-bottom: 2vmin solid transparent;
+                border-right: 2vmin solid white;
+                position: absolute;
+                bottom: 50%;
+                margin-bottom: -1vmin;
+                left: calc(-2vmin + 1px);
+                "  id="info-arrow-left">
+                </div>
+                <div style="
+                display: none;
+                transform: translateY(25%);
+                width: 0;
+                height: 0;
+                border-top: 2vmin solid transparent;
+                border-bottom: 2vmin solid transparent;
+                border-left: 2vmin solid white;
+                position: absolute;
+                bottom: 50%;
+                margin-bottom: -1vmin;
+                right: calc(-2vmin + 1px);
+                "  id="info-arrow-right">
+                </div>
+            </div>
+
+    <!-- <div id="intro" style="
+        display: none;
+        width:100%;
+        position:fixed;
+        bottom:0;
+        top:0;
+        right:0;
+        left:0;
+        background-color:rgba(0,0,0,0.6);
+        ">
+        <div style="
+            background-color: white;
+            color:rgba(0,0,0,0.85);
+            padding: 4vmin;
+            border-radius: 4vmin;
+            position:fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, calc(-50% - 30vmin));
+            width: 75vmin;
+            " class="text-sec"><span id="intro-text">Welcome! Your task is to create a safe path and prevent the curious black cat from wandering off the playing field. Ready to be a feline hero? Let's get started!</span>
+            <div id="close-intro" class="ripple" style="
+                    position: absolute;
+    right: 0;
+    top: 0;
+    width: 6vmin;
+    height: 6vmin;
+    padding: 1.5vmin;
+    border-radius: 4vmin;
+    background-color: white;
+    color: rgba(0,0,0,0.85);
+    text-align: center;
+                    "><b>✕</b></div>
+            <div style="
+                    bottom: 0;
+                    left: 50%;
+                    transform: translateX(-3.6vmin);
+                    width: 0;
+                    height: 0;
+                    border-left: 5vmin solid transparent;
+                    border-right: 5vmin solid transparent;
+                    border-top: 5vmin solid white;
+                    position: absolute;
+                    right: 50%;
+                    margin-right: -2.5vmin;
+                    bottom: calc(-5vmin + 1px);
+                    ">
+
+            </div>
+        </div>
+
+    </div> -->
+
+    <div id="no-lives" class="hidden absolute" style="
+        z-index:5;top:0;right:0;left:0;bottom:0;background-color:rgba(0,0,0,0.8);">
+        <div id="no-lives-close" class="text absolute ripple" style="top:7vmin;right:calc(4.5vw - 5.5vmin);z-index:6;">
+            <span class="button" style="
+                font-size:6.5vmin;padding:4vmin;
+                border-radius: 6vmin;
+                border-width: 0.5vmin;
+                border-color: black;
+                border-style: solid;
+                padding-bottom: 2.5vmin;
+                background-color: #CFC8C5;
+                ">✕</span>
+        </div>
+        <div id="no-lives" class="absolute" style="
+        z-index:5;top:0;right:0;left:0;bottom:0;padding:4vmin;
+        background-color:#ddd5d0;
+        background-image: url('img/bg/lost_menu.png');
+        background-size: cover;
+        background-position-y: bottom;
+        overflow-y:scroll;
+        overflow-x:hidden;
+        top: 50%;
+        padding-bottom: 0;
+        transform: translateY(-50%);
+        /* max-height: 150vmin; */
+        /* height: calc(min(100%, 145vmin)); */
+        height:100%;
+        ">
+            <div class="text m"
+                style="text-align:center; font-size: 11vmin; margin-bottom: 3vmin; margin-top: 8vmin;">
+                <span id="no-lives-title"
+                    style="
+                    background-color: #DCD4CF;
+                    padding: 2vmin;
+                border-radius: 4vmin;
+                box-shadow: 0 0 2vmin #DCD4CF;">Oops! You're out of lives!</span>
+            </div>
+
+            <div
+                style="width: 30vmin; height: 0.5vmin; border-radius: 0.25vmin; background-color: rgba(0,0,0,0.85); margin: auto; margin-bottom: 5vmin;margin-top: 5vmin;">
+            </div>
+
+            <div id="no-lives-description" class="text-sec m" style="text-align:center;">
+                <span style="background-color: #DCD4CF;
+                padding: 1vmin;
+            border-radius: 2vmin;
+            box-shadow: 0 0 1.5vmin #DCD4CF;">Wait
+                <b><span id="wait-timer">20:00</span></b> for 3 free lives or get 9 lives for <span class="price_fill_up_lives">$0.99</span> (Only <span class="price_fill_up_lives_per_life">$0.11</span> per life!)
+                </span>
+            </div>
+            <!-- <div id="topup-lives-cat" style="width:100%;position:absolute;bottom:24vmin">
+                <img src="img/flat-cat.svg" style="
+                    max-width: 70%;
+                    max-height: calc(min(110vh - 100vmin, 35vmax));
+                    display:block;margin:auto;
+                    border-radius:3vmin;margin-top:3vmin;margin-bottom:4vmin">
+                </img>
+            </div> -->
+            <div id="no-lives-cta-container" class="cta-container" style="z-index:5;">
+                <div id="no-lives-cta2" class="button ripple subscribe-section text-sec cta"
+                    style="text-align:center;text-shadow: 0 0 black;">
+                    Watch a Video for 3 Lives
+                </div>
+                <div id="no-lives-cta3" class="button ripple subscribe-section text-sec cta"
+                    style="text-align:center;background-color: #9199ff;color:black!important;">
+                    Invite a Friend for 5 Bonus Lives
+                </div>
+                <div id="no-lives-cta" class="button ripple subscribe-section text-sec cta"
+                    style="text-align:center;background-color:#D3FF01;color:black!important;">Buy 9 Lives for <span class="price_fill_up_lives">$0.99</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="end-episodes" class="" style="
+        display:none;width:100%;height: 100%;z-index:4;
+    " class="absolute center">
+    <span class="text-sec center text-on-white" style="margin-top: 9vmin;font-size: 4.2vmin;text-shadow: white 0 0 1vmin;background-color: rgba(255,255,255,0.7);padding:3vmin;border-radius: 20vmin;">
+        <p style="font-size:5vmin;margin-bottom:2vmin;margin-top:0"><b>Hooray! 🎉🎉🎉</b></p>You've mastered all available episodes—great job!<br>Exciting new challenges are on the horizon. Stay tuned for the next wave of levels.<br>
+        <div id="tell-us-what-you-think" class="button subscribe-section menu-option text-sec p ripple rm-web" style="margin-bottom: 5vmin;margin-top: 5vmin;display: inline-block;background-color: #D3FF01;">💬 <span class="" >Tell us what you think!</span></div><br>
+        Join the Community:
+        <div style="
+        display: flex;
+        width: 100%;
+        align-items: center;
+        justify-content: center;
+        margin-top: 3vmin;
+        ">
+            <div class="text ripple" style="">
+                <img onclick="window.open('https://discord.gg/8MPz7bzuPD', '_blank').focus();" src="img/social/discord.png" class="button" style="
+                border-radius: 8vmin;
+                    border-width: 0.5vmin;
+                    border-color: black;
+                    border-style: solid;
+                    width: 12vmin;
+                    "></img>
+            </div>
+            <div class="text ripple" style="margin-left: 5vmin; margin-right: 5vmin;">
+                <img onclick="window.open('https://www.reddit.com/r/TrapTheCatGame/', '_blank').focus();" src="img/social/reddit.png" class="button" style="
+                border-radius: 8vmin;
+                    border-width: 0.5vmin;
+                    border-color: black;
+                    border-style: solid;
+                    width: 12vmin;
+                    "></img>
+            </div>
+            <div class="text ripple" style="">
+                <img onclick="window.open('https://www.tiktok.com/@playchatnoir', '_blank').focus();" src="img/social/tiktok.png" class="button" style="
+                border-radius: 8vmin;
+                    border-width: 0.5vmin;
+                    border-color: black;
+                    border-style: solid;
+                    width: 12vmin;
+                    "></img>
+            </div>
+        </div>
+    </span>
+    </div>
+
+    <div id="compliment-animation" style="
+    top: 0;
+            display:none;
+            height:15%;max-height:60px; position:absolute;z-index:4;
+    ">
+        <img id="compliment-image" style="
+                height: 100%;
+                display:block;
+                opacity: 0;
+                ">
+        </img>
+    </div>
+
+    <div id="won-container" style="">
+        <div id="won-banner" class="won-animation2" style="
+            z-index: 5;
+            display:none;
+            position: absolute;
+            background-color: rgba(0,0,0,0.8);
+            left:0;
+            right:0;
+            top:0;
+            height: 100%;
+            width: 60%;
+            opacity: 0;
+            padding-left: 20%;
+            padding-right: 20%;
+        ">
+            <div class="won-animation3 text text-outline" style="
+            z-index: 6;
+            position:absolute;
+            text-align: center;
+            background-color: #f1f2e6;
+            width:60%;
+            padding-top: 4.5vmin;
+            padding-bottom: 2.5vmin;
+            border-width: 1vmin;
+            border-style: double;
+            margin-bottom: -8vmin;
+            font-size: 12vmin;
+            border-radius: 5vmin;
+            background-image: url('img/bg/won.jpg');
+            background-size: cover;
+            color: white;
+            font-weight: bold;
+            ">Well Done!</div>
+        </div>
+        <div id="won-animation" class="won-animation" style="
+            display:none;width:100%;height: 90%;position:absolute;z-index:7;
+            opacity: 0;
+        ">
+            <img src="img/won.png" style="
+                    height: 100%;
+                    display:block;
+                    margin:auto;
+                    border-radius:3vmin;
+                    margin-top:3vmin;
+                    transform: translateY(50%);
+                    ">
+            </img>
+        </div>
+    </div>
+
+    <div id="pick-level" class="absolute" style="display:none;z-index:3;height:100%;width:100%;left:0;top:0;">
+        <div id="pick-level-close" class="text absolute ripple"
+            style="top:5vmin;right:calc(4vw - 3.5vmin);z-index:5;">
+            <span style="font-size:6.5vmin;padding:4vmin;">✕</span>
+        </div>
+        <div id="pick-level-items" class="vertical-center" style="
+            overflow-y:scroll;
+            max-height:calc(100% - 16vmin);
+            margin-bottom:16vmin;
+            ">
+        </div>
+    </div>
+    <div id="pick-level-bg"
+        style="display:none;z-index:2;position:absolute;height:100%;width:100%;opacity:0.95;left:0;top:0;"></div>
+    </div>
+
+    <script type="text/javascript" src="anime.min.js"></script>
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript"  src="snackbar.min.js"></script>
+    <script type="text/javascript" src="js/envs.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
 </body>
+
 </html>
