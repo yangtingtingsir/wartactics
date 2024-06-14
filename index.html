@@ -1,44 +1,120 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0,minimal-ui,shrink-to-fit=no">
-	<title>Phaser3 Slot Machine</title>
-	<style type="text/css">
-		* {
-			padding: 0;
-			margin: 0;
-		}
-		html, body {
-			background-color: #430033;
-			overflow: hidden;
-			touch-action: none;
-			-ms-touch-action: none;
-		}
-		canvas {
-			touch-action-delay: none;
-			touch-action: none;
-			-ms-touch-action: none;
-		}
-		@font-face {
-		  font-family: 'bebas';
-		  font-style: normal;
-		  font-weight: 400;
-		  src: url(font/bebas.ttf) format('truetype');
-		}
-	</style>
-	<link rel="shortcut icon" sizes="256x256" href="img/icon.png" />
-	<script type="text/javascript" src="scripts/phaser.min.js"></script>
-</head>
-<body>
-	<div style="font-family:bebas; position:absolute; left:-1000px; visibility:hidden;">.</div>
-	<div id="rf_rotate"></div>
-	<div id="game_content"></div>
-	<script type="text/javascript" src="scripts/config.js"></script>
-	<script type="text/javascript" src="scripts/boot.js"></script>
-	<script type="text/javascript" src="scripts/preload.js"></script>
-	<script type="text/javascript" src="scripts/menu.js"></script>
-	<script type="text/javascript" src="scripts/game.js"></script>
-	<script type="text/javascript" src="scripts/rotateyourphone.js"></script>
-</body>
+    <head>
+        <title>FLICKING SOCCER</title>
+        <link rel="stylesheet" href="css/reset.css" type="text/css">
+        <link rel="stylesheet" href="css/main.css" type="text/css">
+        <link rel="stylesheet" href="css/orientation_utils.css" type="text/css">
+        <link rel="stylesheet" href="css/ios_fullscreen.css" type="text/css">
+        <link rel='shortcut icon' type='image/x-icon' href='./favicon.ico' />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+        <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0,minimal-ui" />
+        <meta name="msapplication-tap-highlight" content="no"/>
+
+        <script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+        <script type="text/javascript" src="js/createjs.min.js"></script>
+        <script type="text/javascript" src="js/howler.min.js"></script>
+        <script type="text/javascript" src="js/CLang.min.js"></script>
+        <script type="text/javascript" src="js/main.js"></script>
+    </head>
+    <body ondragstart="return false;" ondrop="return false;" >
+        <div style="position: fixed; background-color: transparent; top: 0px; left: 0px; width: 100%; height: 100%"></div>
+        <script>
+            $(document).ready(function () {
+                var oMain = new CMain({
+                    regular_match_time: 120, //DURATION OF A MATCH IN SECONDS
+                    extend_match_time: 60, // DURATION OF A MATCH ENDED IN TIE IN SECONDS
+                    launch_penality_second: 7, //TIME FOR LAUNCH PLAYER USER BEFORE PENALITY
+                    score_win: 100, //ADD SCORE WHEN PLAYER WIN A MATCH
+                    score_tie: 50, //ADD SCORE WHEN PLAYER TIE A MATCH,
+                    add_score_player_goal: 60, //ADD SCORE EVERY USER PLAYER GOAL
+                    remove_score_opponent_goal: 40, //REMOVE SCORE EVERY CPU PLAYER GOAL
+                    time_reset_ball: 2, //TIME TO RESET THE BALL AFTER A GOAL IN SECONDS
+                    scroll_velocity: 5, //VELOCITY SCROLL IN PIXEL
+                    touch_ball_score: 10, //ADD SCORE EVERYTIME WHEN PLAYERS USER TOUCH THE BALL
+                    foul_score: -20, //REMOVE SCORE WHEN A PLAYER TOUCH A OTHER TEAM PLAYER
+                    num_of_shot: 3, //MAX SHOT TURN
+                    precision_cpu_rate: [{min: 0.7, max: 1.3}, {min: 0.8, max: 1.3}, {min: 0.8, max: 1.2}, {min: 0.8, max: 1.1}, {min: 0.9, max: 1.2}, {min: 0.9, max: 1.1}, {min:1, max: 1}, {min: 1, max: 1}], //PRECISION RATE FOR HIT THE BALL VALUE 1 IS BEST
+                    cpu_power_players: [0.8, 0.9, 0.9, 1, 1, 1.1, 1.2], //POWER LAUNCH OF A PLAYERS CPU
+                    audio_enable_on_startup:false, //ENABLE/DISABLE AUDIO WHEN GAME STARTS 
+                    fullscreen:true,        //SET THIS TO FALSE IF YOU DON'T WANT TO SHOW FULLSCREEN BUTTON
+                    check_orientation:false, //SET TO FALSE IF YOU DON'T WANT TO SHOW ORIENTATION ALERT ON MOBILE DEVICES               
+                    num_levels_for_ads: 2 //NUMBER OF TURNS PLAYED BEFORE AD SHOWING //
+                            //////// THIS FEATURE  IS ACTIVATED ONLY WITH CTL ARCADE PLUGIN./////////////////////////// 
+                            /////////////////// YOU CAN GET IT AT: ///////////////////////////////////////////////////////// 
+                            // http://codecanyon.net/item/ctl-arcade-wordpress-plugin/13856421///////////
+                });
+                
+                $(oMain).on("start_session", function (evt) {
+                    if (getParamValue('ctl-arcade') === "true") {
+                        parent.__ctlArcadeStartSession();
+                    }
+                });
+
+                $(oMain).on("end_session", function (evt) {
+                    if (getParamValue('ctl-arcade') === "true") {
+                        parent.__ctlArcadeEndSession();
+                    }
+                });
+
+                $(oMain).on("start_level", function (evt, iLevel) {
+                    if (getParamValue('ctl-arcade') === "true") {
+                        parent.__ctlArcadeStartLevel({level: iLevel});
+                    }
+                });
+
+                $(oMain).on("restart_level", function (evt, iLevel) {
+                    if (getParamValue('ctl-arcade') === "true") {
+                        parent.__ctlArcadeRestartLevel({level: iLevel});
+                    }
+                });
+
+                $(oMain).on("end_level", function (evt, iLevel) {
+                    if (getParamValue('ctl-arcade') === "true") {
+                        parent.__ctlArcadeEndLevel({level: iLevel});
+                    }
+                });
+
+                $(oMain).on("save_score", function (evt, iScore, szMode) {
+                    if (getParamValue('ctl-arcade') === "true") {
+                        parent.__ctlArcadeSaveScore({score: iScore, mode: szMode});
+                    }
+                });
+
+                $(oMain).on("show_interlevel_ad", function (evt) {
+                    if (getParamValue('ctl-arcade') === "true") {
+                        parent.__ctlArcadeShowInterlevelAD();
+                    }
+                });
+
+                $(oMain).on("share_event", function (evt, iScore) {
+                    if (getParamValue('ctl-arcade') === "true") {
+                        parent.__ctlArcadeShareEvent({img: TEXT_SHARE_IMAGE,
+                            title: TEXT_SHARE_TITLE,
+                            msg: TEXT_SHARE_MSG1 + iScore + TEXT_SHARE_MSG2,
+                            msg_share: TEXT_SHARE_SHARE1 + iScore + TEXT_SHARE_SHARE1});
+                    }
+                });
+
+
+                if (isIOS()) {
+                    setTimeout(function () {
+                        sizeHandler();
+                    }, 200);
+                } else {
+                    sizeHandler();
+                }
+            });
+
+        </script>
+        
+        <div class="check-fonts">
+            <p class="check-font-1">test 1</p>
+        </div> 
+        
+        <canvas id="canvas" class='ani_hack' width="1360" height="640"> </canvas>
+         <div data-orientation="landscape" class="orientation-msg-container"><p class="orientation-msg-text">Please rotate your device</p></div>
+        <div id="block_game" style="position: fixed; background-color: transparent; top: 0px; left: 0px; width: 100%; height: 100%; display:none"></div>
+    </body>
 </html>
