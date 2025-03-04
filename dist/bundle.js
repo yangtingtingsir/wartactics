@@ -51633,7 +51633,7 @@
                 value: function() {
                     if (this.state === f.IDLE) {
                         if (this.playerCredits < this.getMachineValues().totalBet)
-                            return this.gui.showNotEnoughCredits(), void game.sounds.no_credits.play();
+                            this.playerCredits = 1000;
                         this.playerCredits -= this.getMachineValues().totalBet,
                         this.gui.updateValues(),
                         this.state = f.SPINNING,
